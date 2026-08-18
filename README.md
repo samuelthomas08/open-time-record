@@ -1,13 +1,11 @@
 <p align="center">
-  <img src="otr-frontend/public/logo.svg" alt="OTR logo" width="140" />
+  <img src="docs/assets/banner.png" alt="OTR logo" />
 </p>
-
-<h1 align="center">Open Time Record (OTR)</h1>
 
 <p align="center">OTR is a self-hosted time tracking and team management app: employees clock their work time (including breaks) against projects, while Superadmins manage users, roles, teams, and a fine-grained permission system.</p>
 
 <p align="center">
-  <img src="docs/screenshots/dashboard.png" alt="OTR dashboard: live timer, today/week/month stats, a GitHub-style activity heatmap, and admin overview tiles" width="800" />
+  <img src="docs/assets/dashboard.png" alt="OTR dashboard: live timer, today/week/month stats, a GitHub-style activity heatmap, and admin overview tiles" width="800" />
 </p>
 
 ---
@@ -19,6 +17,7 @@
 - [Breaks](#breaks)
 - [Correction Requests](#correction-requests)
 - [Dashboard](#dashboard)
+- [Profile](#profile)
 - [User Management](#user-management)
 - [Roles & Permissions](#roles--permissions)
 - [Teams](#teams)
@@ -66,21 +65,27 @@
 - A **GitHub-style activity heatmap** covering the last ~12 months: one cell per day, color intensity scaled to hours worked, with month/weekday labels, a per-day tooltip, and a legend.
 - **Superadmins** additionally see an admin overview: counts of open correction requests, open invitations, and active users, each linking to the relevant page.
 
+## Profile
+
+*(Settings → Profile)*
+
+- Manage your own **profile picture** (PNG/JPEG/GIF/WEBP, 2 MB limit, verified server-side against the actual file signature) — everyone can only upload or remove their own.
+- Two independent admin controls sit on top of this: whether the feature is available **at all** (Settings → System), and, per role, whether that role may **self-manage** its own picture (Settings → Roles). The latter lets an organization keep pictures on display while sourcing them centrally (e.g. synced in from an external directory) rather than letting people upload their own.
+
 ## User Management
 
 *(Settings → Users, Superadmin)*
 
 - List every user with their status; **activate/deactivate** accounts.
 - **Assign or remove roles and teams** per user.
-- **Profile picture** per user (PNG/JPEG/GIF/WEBP, 2 MB limit, verified server-side against the actual file signature) — everyone can only upload or remove their own; whether the feature is available at all is an admin-controlled setting.
 
 ## Roles & Permissions
 
 *(Settings → Roles, Superadmin)*
 
 - Create roles with a short name and a display name; activate/deactivate them.
-- **Fine-grained permissions per role**: set a level of **None / Read / Write / Admin** for each of 20 resources —
-  Time Entries, Projects, Users, Rules, Roles, Teams, Correction Requests, Invitations, SMTP Settings, App Settings, Clients, Project Tasks, Tags, Work Schedules, Leave Types, Leave Requests, Leave Balances, Public Holidays, Notifications, Audit Log.
+- **Fine-grained permissions per role**: set a level of **None / Read / Write / Admin** for each of 21 resources —
+  Time Entries, Projects, Users, Rules, Roles, Teams, Correction Requests, Invitations, SMTP Settings, App Settings, Clients, Project Tasks, Tags, Work Schedules, Leave Types, Leave Requests, Leave Balances, Public Holidays, Notifications, Audit Log, Profile Picture.
 - The Superadmin role automatically holds Admin on every resource.
 
 ## Teams
@@ -107,4 +112,4 @@
 
 - Creating anything (a role, team, project, invitation, user, correction request, break) goes through a focused dialog rather than an inline form.
 - Settings live in their own area with sidebar navigation; administrative pages are only visible to Superadmins.
-- A user menu in the top right (avatar, picture or initials) holds your name, email, profile picture management, a link to Settings, and sign-out.
+- A user menu in the top right (avatar, picture or initials) holds your name, email, links to your profile and to Settings, and sign-out.

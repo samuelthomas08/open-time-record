@@ -12,6 +12,7 @@ import { SmtpSettingsPage } from './pages/smtp-settings/smtp-settings';
 import { SettingsLayout } from './pages/settings/settings-layout';
 import { SettingsAppearance } from './pages/settings/appearance/appearance';
 import { SettingsAbout } from './pages/settings/about/about';
+import { SettingsProfile } from './pages/settings/profile/profile';
 import { SettingsSystem } from './pages/settings/system/system';
 import { Roles } from './pages/roles/roles';
 import { Teams } from './pages/teams/teams';
@@ -30,6 +31,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', component: SettingsAppearance },
+      { path: 'profile', component: SettingsProfile },
       { path: 'about', component: SettingsAbout },
       { path: 'users', component: Users },
       { path: 'roles', component: Roles },

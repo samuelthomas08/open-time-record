@@ -49,12 +49,17 @@ import { apiUserIdTeamsTeamIdDelete } from '../fn/user/api-user-id-teams-team-id
 import { ApiUserIdTeamsTeamIdDelete$Params } from '../fn/user/api-user-id-teams-team-id-delete';
 import { apiUserIdTeamsTeamIdPost } from '../fn/user/api-user-id-teams-team-id-post';
 import { ApiUserIdTeamsTeamIdPost$Params } from '../fn/user/api-user-id-teams-team-id-post';
+import { apiUserMePermissionsGet$Json } from '../fn/user/api-user-me-permissions-get-json';
+import { ApiUserMePermissionsGet$Json$Params } from '../fn/user/api-user-me-permissions-get-json';
+import { apiUserMePermissionsGet$Plain } from '../fn/user/api-user-me-permissions-get-plain';
+import { ApiUserMePermissionsGet$Plain$Params } from '../fn/user/api-user-me-permissions-get-plain';
 import { apiUserPost$Json } from '../fn/user/api-user-post-json';
 import { ApiUserPost$Json$Params } from '../fn/user/api-user-post-json';
 import { apiUserPost$Plain } from '../fn/user/api-user-post-plain';
 import { ApiUserPost$Plain$Params } from '../fn/user/api-user-post-plain';
 import { EnrichedUserDto } from '../models/enriched-user-dto';
 import { Role } from '../models/role';
+import { RolePermissionDto } from '../models/role-permission-dto';
 import { Team } from '../models/team';
 import { User } from '../models/user';
 
@@ -491,6 +496,53 @@ export class UserService extends BaseService {
   apiUserIdTeamsTeamIdDelete(params: ApiUserIdTeamsTeamIdDelete$Params, context?: HttpContext): Promise<void> {
     const resp = this.apiUserIdTeamsTeamIdDelete$Response(params, context);
     return resp.then((r: StrictHttpResponse<void>): void => r.body);
+  }
+
+  /** Path part for operation `apiUserMePermissionsGet()` */
+  static readonly ApiUserMePermissionsGetPath = '/api/User/me/permissions';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiUserMePermissionsGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserMePermissionsGet$Plain$Response(params?: ApiUserMePermissionsGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<RolePermissionDto>>> {
+    const obs = apiUserMePermissionsGet$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiUserMePermissionsGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserMePermissionsGet$Plain(params?: ApiUserMePermissionsGet$Plain$Params, context?: HttpContext): Promise<Array<RolePermissionDto>> {
+    const resp = this.apiUserMePermissionsGet$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<RolePermissionDto>>): Array<RolePermissionDto> => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiUserMePermissionsGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserMePermissionsGet$Json$Response(params?: ApiUserMePermissionsGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<RolePermissionDto>>> {
+    const obs = apiUserMePermissionsGet$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiUserMePermissionsGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserMePermissionsGet$Json(params?: ApiUserMePermissionsGet$Json$Params, context?: HttpContext): Promise<Array<RolePermissionDto>> {
+    const resp = this.apiUserMePermissionsGet$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<RolePermissionDto>>): Array<RolePermissionDto> => r.body);
   }
 
   /** Path part for operation `apiUserIdProfilePicturePost()` */

@@ -25,10 +25,18 @@ export class AuthService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly currentUserSignal = signal<CurrentUser | null>(this.readStoredUser());
+  private readonly profilePictureUrlSignal = signal<string | null>(null);
 
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isLoggedIn = computed(() => this.currentUserSignal() !== null);
   readonly isSuperadmin = computed(() => this.currentUserSignal()?.roles.includes('Superadmin') ?? false);
+
+  /** Shared across the header avatar and the Profile settings page, so editing it in one place updates the other live. */
+  readonly profilePictureUrl = this.profilePictureUrlSignal.asReadonly();
+
+  setProfilePictureUrl(url: string | null): void {
+    this.profilePictureUrlSignal.set(url);
+  }
 
   get token(): string | null {
     return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
@@ -67,6 +75,7 @@ export class AuthService {
       localStorage.removeItem(USER_KEY);
     }
     this.currentUserSignal.set(null);
+    this.profilePictureUrlSignal.set(null);
     this.router.navigateByUrl('/login');
   }
 

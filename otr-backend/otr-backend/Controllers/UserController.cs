@@ -322,10 +322,23 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    [HttpGet("me/permissions")]
+    public async Task<ActionResult<List<RolePermissionDto>>> GetMyPermissions()
+    {
+        Dictionary<PermissionResource, PermissionLevel> effective = await _permissionService.GetEffectivePermissionsAsync(User.GetUserId());
+        return Ok(effective.Select(kv => new RolePermissionDto { Resource = kv.Key, Level = kv.Value }).ToList());
+    }
+
     [HttpPost("{id}/profile-picture")]
     public async Task<ActionResult<User>> UploadProfilePicture(uint id, IFormFile file)
     {
         if (id != User.GetUserId())
+        {
+            return Forbid();
+        }
+
+        bool allowed = await _permissionService.HasPermissionAsync(id, PermissionResource.ProfilePicture, PermissionLevel.Write);
+        if (!allowed)
         {
             return Forbid();
         }
@@ -390,6 +403,12 @@ public class UserController : ControllerBase
     public async Task<ActionResult<User>> DeleteProfilePicture(uint id)
     {
         if (id != User.GetUserId())
+        {
+            return Forbid();
+        }
+
+        bool allowed = await _permissionService.HasPermissionAsync(id, PermissionResource.ProfilePicture, PermissionLevel.Write);
+        if (!allowed)
         {
             return Forbid();
         }

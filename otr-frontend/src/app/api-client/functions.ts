@@ -315,6 +315,10 @@ export type { ApiUserIdTeamsTeamIdPost$Params as ApiUserIdTeamsTeamIdPost$Params
 export { apiUserIdTeamsTeamIdPost as apiUserIdTeamsTeamIdPost } from './fn/user/api-user-id-teams-team-id-post';
 export type { ApiUserIdTeamsTeamIdDelete$Params as ApiUserIdTeamsTeamIdDelete$Params } from './fn/user/api-user-id-teams-team-id-delete';
 export { apiUserIdTeamsTeamIdDelete as apiUserIdTeamsTeamIdDelete } from './fn/user/api-user-id-teams-team-id-delete';
+export type { ApiUserMePermissionsGet$Plain$Params as ApiUserMePermissionsGet$Plain$Params } from './fn/user/api-user-me-permissions-get-plain';
+export { apiUserMePermissionsGet$Plain as apiUserMePermissionsGet$Plain } from './fn/user/api-user-me-permissions-get-plain';
+export type { ApiUserMePermissionsGet$Json$Params as ApiUserMePermissionsGet$Json$Params } from './fn/user/api-user-me-permissions-get-json';
+export { apiUserMePermissionsGet$Json as apiUserMePermissionsGet$Json } from './fn/user/api-user-me-permissions-get-json';
 export type { ApiUserIdProfilePicturePost$Plain$Params as ApiUserIdProfilePicturePost$Plain$Params } from './fn/user/api-user-id-profile-picture-post-plain';
 export { apiUserIdProfilePicturePost$Plain as apiUserIdProfilePicturePost$Plain } from './fn/user/api-user-id-profile-picture-post-plain';
 export type { ApiUserIdProfilePicturePost$Json$Params as ApiUserIdProfilePicturePost$Json$Params } from './fn/user/api-user-id-profile-picture-post-json';

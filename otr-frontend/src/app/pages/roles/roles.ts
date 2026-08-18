@@ -32,6 +32,7 @@ const PERMISSION_RESOURCES: ReadonlyArray<{ value: number; label: string }> = [
   { value: 17, label: 'Feiertage' },
   { value: 18, label: 'Benachrichtigungen' },
   { value: 19, label: 'Änderungsprotokoll' },
+  { value: 20, label: 'Profilbild' },
 ];
 
 /** Mirrors the backend PermissionLevel enum, same reasoning. */

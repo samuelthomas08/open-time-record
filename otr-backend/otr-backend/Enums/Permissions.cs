@@ -22,6 +22,7 @@ public enum PermissionResource
     PublicHolidays,
     Notifications,
     AuditLogs,
+    ProfilePicture,
 }
 
 public enum PermissionLevel

@@ -90,24 +90,35 @@ static async Task SeedSuperadminRoleAsync(IServiceProvider services)
     using IServiceScope scope = services.CreateScope();
     OtrDbContext context = scope.ServiceProvider.GetRequiredService<OtrDbContext>();
 
-    bool superadminExists = await context.Roles.AnyAsync(r => r.RoleName == "Superadmin");
-    if (superadminExists)
+    Role? superadmin = await context.Roles.FirstOrDefaultAsync(r => r.RoleName == "Superadmin");
+    if (superadmin == null)
     {
-        return;
+        superadmin = new Role
+        {
+            RoleName = "Superadmin",
+            RoleDisplayName = "Superadmin",
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true,
+        };
+        context.Roles.Add(superadmin);
+        await context.SaveChangesAsync();
     }
 
-    Role superadmin = new()
-    {
-        RoleName = "Superadmin",
-        RoleDisplayName = "Superadmin",
-        CreatedAt = DateTime.UtcNow,
-        IsActive = true,
-    };
-    context.Roles.Add(superadmin);
-    await context.SaveChangesAsync();
+    // Backfill only — never touches a resource Superadmin already has a row for, so a
+    // deliberately-lowered grant survives restarts. This just makes sure that whenever
+    // PermissionResource grows, Superadmin doesn't fall behind on the new value.
+    List<PermissionResource> grantedResources = await context.RolePermissionMappings
+        .Where(m => m.RoleId == superadmin.Id)
+        .Select(m => m.Resource)
+        .ToListAsync();
 
     foreach (PermissionResource resource in Enum.GetValues<PermissionResource>())
     {
+        if (grantedResources.Contains(resource))
+        {
+            continue;
+        }
+
         context.RolePermissionMappings.Add(new RolePermissionMapping
         {
             RoleId = superadmin.Id,

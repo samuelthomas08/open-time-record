@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBuilding2,
+  lucideCircleUserRound,
   lucideFolderKanban,
   lucideInfo,
   lucideMail,
@@ -22,6 +23,7 @@ import { LayoutImports } from '@/shared/components/layout';
   viewProviders: [
     provideIcons({
       lucideSunMoon,
+      lucideCircleUserRound,
       lucideUsers,
       lucideShieldCheck,
       lucideBuilding2,

@@ -33,34 +33,8 @@
     </div>
   </z-dropdown-menu-label>
 
-  @if (profilePicturesEnabled()) {
-    <z-dropdown-menu-separator />
-    <z-dropdown-menu-item [zDisabled]="uploading()" (click)="triggerFileInput()">
-      @if (uploading()) {
-        Wird hochgeladen…
-      } @else if (pictureSrc()) {
-        Bild ändern
-      } @else {
-        Bild hochladen
-      }
-    </z-dropdown-menu-item>
-    @if (pictureSrc()) {
-      <z-dropdown-menu-item [zDisabled]="uploading()" (click)="removePicture()">Bild entfernen</z-dropdown-menu-item>
-    }
-    @if (error()) {
-      <p class="px-2 py-1 text-xs text-destructive">{{ error() }}</p>
-    }
-  }
-
   <z-dropdown-menu-separator />
+  <a z-dropdown-menu-item routerLink="/settings/profile">Profil</a>
   <a z-dropdown-menu-item routerLink="/settings">Einstellungen</a>
   <z-dropdown-menu-item (click)="logout()">Abmelden</z-dropdown-menu-item>
 </z-dropdown-menu-content>
-
-<input
-  #fileInput
-  type="file"
-  accept="image/png,image/jpeg,image/gif,image/webp"
-  class="hidden"
-  (change)="onFileSelected($event)"
-/>

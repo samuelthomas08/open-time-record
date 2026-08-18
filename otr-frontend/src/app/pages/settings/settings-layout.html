@@ -3,6 +3,14 @@
     <z-sidebar-group>
       <z-sidebar-group-label>Allgemein</z-sidebar-group-label>
       <a
+        routerLink="/settings/profile"
+        routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      >
+        <ng-icon name="lucideCircleUserRound" size="16" />
+        Profil
+      </a>
+      <a
         routerLink="/settings"
         [routerLinkActiveOptions]="{ exact: true }"
         routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
