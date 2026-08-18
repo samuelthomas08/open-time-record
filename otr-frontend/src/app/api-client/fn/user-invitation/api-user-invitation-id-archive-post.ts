@@ -4,7 +4,8 @@
 import { HttpClient, HttpContext, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { StrictHttpResponse, RequestBuilder } from '@/api-client';
+import { StrictHttpResponse } from '../../strict-http-response';
+import { RequestBuilder } from '../../request-builder';
 
 
 export interface ApiUserInvitationIdArchivePost$Params {
