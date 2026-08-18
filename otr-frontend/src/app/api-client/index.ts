@@ -410,6 +410,8 @@ export type { ApiUserInvitationPost$Plain$Params as ApiUserInvitationPost$Plain$
 export { apiUserInvitationPost$Plain as apiUserInvitationPost$Plain } from './fn/user-invitation/api-user-invitation-post-plain';
 export type { ApiUserInvitationPost$Json$Params as ApiUserInvitationPost$Json$Params } from './fn/user-invitation/api-user-invitation-post-json';
 export { apiUserInvitationPost$Json as apiUserInvitationPost$Json } from './fn/user-invitation/api-user-invitation-post-json';
+export type { ApiUserInvitationIdArchivePost$Params as ApiUserInvitationIdArchivePost$Params } from './fn/user-invitation/api-user-invitation-id-archive-post';
+export { apiUserInvitationIdArchivePost as apiUserInvitationIdArchivePost } from './fn/user-invitation/api-user-invitation-id-archive-post';
 export type { ApiWorkScheduleGet$Plain$Params as ApiWorkScheduleGet$Plain$Params } from './fn/work-schedule/api-work-schedule-get-plain';
 export { apiWorkScheduleGet$Plain as apiWorkScheduleGet$Plain } from './fn/work-schedule/api-work-schedule-get-plain';
 export type { ApiWorkScheduleGet$Json$Params as ApiWorkScheduleGet$Json$Params } from './fn/work-schedule/api-work-schedule-get-json';

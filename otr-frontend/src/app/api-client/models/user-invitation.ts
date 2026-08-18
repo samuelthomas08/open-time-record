@@ -11,6 +11,7 @@ export interface UserInvitation {
   id?: (number | string);
   invitedByUser?: User;
   invitedByUserId?: (number | string);
+  isArchived?: boolean;
   managerId?: (number | string | null);
   roleId?: (number | string);
   teamId?: (number | string | null);

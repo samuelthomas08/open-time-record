@@ -13,6 +13,8 @@ import { apiUserInvitationGet$Json } from '../fn/user-invitation/api-user-invita
 import { ApiUserInvitationGet$Json$Params } from '../fn/user-invitation/api-user-invitation-get-json';
 import { apiUserInvitationGet$Plain } from '../fn/user-invitation/api-user-invitation-get-plain';
 import { ApiUserInvitationGet$Plain$Params } from '../fn/user-invitation/api-user-invitation-get-plain';
+import { apiUserInvitationIdArchivePost } from '../fn/user-invitation/api-user-invitation-id-archive-post';
+import { ApiUserInvitationIdArchivePost$Params } from '../fn/user-invitation/api-user-invitation-id-archive-post';
 import { apiUserInvitationPost$Json } from '../fn/user-invitation/api-user-invitation-post-json';
 import { ApiUserInvitationPost$Json$Params } from '../fn/user-invitation/api-user-invitation-post-json';
 import { apiUserInvitationPost$Plain } from '../fn/user-invitation/api-user-invitation-post-plain';
@@ -118,6 +120,31 @@ export class UserInvitationService extends BaseService {
   apiUserInvitationPost$Json(params: ApiUserInvitationPost$Json$Params, context?: HttpContext): Promise<InviteUserResponse> {
     const resp = this.apiUserInvitationPost$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<InviteUserResponse>): InviteUserResponse => r.body);
+  }
+
+  /** Path part for operation `apiUserInvitationIdArchivePost()` */
+  static readonly ApiUserInvitationIdArchivePostPath = '/api/UserInvitation/{id}/archive';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiUserInvitationIdArchivePost()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserInvitationIdArchivePost$Response(params: ApiUserInvitationIdArchivePost$Params, context?: HttpContext): Promise<StrictHttpResponse<void>> {
+    const obs = apiUserInvitationIdArchivePost(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiUserInvitationIdArchivePost$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserInvitationIdArchivePost(params: ApiUserInvitationIdArchivePost$Params, context?: HttpContext): Promise<void> {
+    const resp = this.apiUserInvitationIdArchivePost$Response(params, context);
+    return resp.then((r: StrictHttpResponse<void>): void => r.body);
   }
 
 }

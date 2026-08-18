@@ -21,6 +21,7 @@
             <th z-table-head>Eingeladen am</th>
             <th z-table-head>Gültig bis</th>
             <th z-table-head>Status</th>
+            <th z-table-head></th>
           </tr>
         </thead>
         <tbody z-table-body>
@@ -29,12 +30,9 @@
               <td z-table-cell>{{ invitation.email }}</td>
               <td z-table-cell>{{ invitation.createdAt | date: 'short' }}</td>
               <td z-table-cell>{{ invitation.expiresAt | date: 'short' }}</td>
-              <td z-table-cell>
-                @if (invitation.acceptedAt) {
-                  <z-badge class="bg-primary/10 text-primary">Angenommen</z-badge>
-                } @else {
-                  <z-badge class="bg-muted text-muted-foreground">Ausstehend</z-badge>
-                }
+              <td z-table-cell><z-badge class="bg-muted text-muted-foreground">Ausstehend</z-badge></td>
+              <td z-table-cell class="text-right">
+                <button z-button zType="ghost" zSize="sm" (click)="archiveInvitation(invitation)">Archivieren</button>
               </td>
             </tr>
           }
@@ -43,12 +41,25 @@
     </div>
   }
 
+  @if (!loading() && users().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name oder E-Mail…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
   @if (loading()) {
     <p class="mt-4 text-muted-foreground">Lädt…</p>
   } @else if (error()) {
     <p class="mt-4 text-destructive">{{ error() }}</p>
   } @else if (users().length === 0) {
     <p class="mt-4 text-muted-foreground">Noch keine Nutzer.</p>
+  } @else if (filteredUsers().length === 0) {
+    <p class="mt-4 text-muted-foreground">Keine Nutzer gefunden.</p>
   } @else {
     <table z-table class="mt-4">
       <thead z-table-header>
@@ -60,7 +71,7 @@
         </tr>
       </thead>
       <tbody z-table-body>
-        @for (user of users(); track user.id) {
+        @for (user of filteredUsers(); track user.id) {
           <tr z-table-row>
             <td z-table-cell>{{ user.firstName }} {{ user.lastName }}</td>
             <td z-table-cell>{{ user.email }}</td>

@@ -8,10 +8,23 @@
     <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
   }
 
+  @if (!loading() && roles().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
   @if (loading()) {
     <p class="mt-6 text-muted-foreground">Lädt…</p>
   } @else if (roles().length === 0) {
     <p class="mt-6 text-muted-foreground">Noch keine Rollen.</p>
+  } @else if (filteredRoles().length === 0) {
+    <p class="mt-6 text-muted-foreground">Keine Rollen gefunden.</p>
   } @else {
     <table z-table class="mt-6">
       <thead z-table-header>
@@ -23,7 +36,7 @@
         </tr>
       </thead>
       <tbody z-table-body>
-        @for (role of roles(); track role.id) {
+        @for (role of filteredRoles(); track role.id) {
           <tr z-table-row>
             <td z-table-cell>{{ role.roleDisplayName }}</td>
             <td z-table-cell class="font-mono text-xs text-muted-foreground">{{ role.roleName }}</td>

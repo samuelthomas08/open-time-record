@@ -114,7 +114,7 @@ export class Dashboard implements OnInit {
         this.userService.apiUserGet$Json(),
       ]);
       this.pendingCorrectionsCount.set(pending.length);
-      this.pendingInvitationsCount.set(invitations.filter(i => !i.acceptedAt).length);
+      this.pendingInvitationsCount.set(invitations.length);
       this.activeUsersCount.set(users.filter(u => u.isActive).length);
     } catch {
       // Non-critical — the admin tiles just stay hidden.

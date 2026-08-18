@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
 using otr_backend.Dtos;
+using otr_backend.Enums;
 using otr_backend.Extensions;
 using otr_backend.Models;
 using otr_backend.Services;
@@ -16,21 +17,47 @@ public class UserInvitationController : ControllerBase
 {
     private readonly OtrDbContext _context;
     private readonly IEmailSender _emailSender;
+    private readonly PermissionService _permissionService;
 
-    public UserInvitationController(OtrDbContext context, IEmailSender emailSender)
+    public UserInvitationController(OtrDbContext context, IEmailSender emailSender, PermissionService permissionService)
     {
         _context = context;
         _emailSender = emailSender;
+        _permissionService = permissionService;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<UserInvitation>>> GetInvitations()
     {
+        // Accepted invitations already show up as real users, and archived ones were
+        // deliberately dismissed — neither belongs in the working list of open invites.
         List<UserInvitation> invitations = await _context.UserInvitations
+            .Where(i => i.AcceptedAt == null && !i.IsArchived)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
 
         return Ok(invitations);
+    }
+
+    [HttpPost("{id}/archive")]
+    public async Task<IActionResult> ArchiveInvitation(uint id)
+    {
+        bool allowed = await _permissionService.HasPermissionAsync(User.GetUserId(), PermissionResource.Invitations, PermissionLevel.Write);
+        if (!allowed)
+        {
+            return Forbid();
+        }
+
+        UserInvitation? invitation = await _context.UserInvitations.FindAsync(id);
+        if (invitation == null)
+        {
+            return NotFound();
+        }
+
+        invitation.IsArchived = true;
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     [HttpPost]

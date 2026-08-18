@@ -1,16 +1,18 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { Team, TeamService, User, UserService } from '@/api-client';
 import { AuthService } from '@/services/auth.service';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardDialogService } from '@/shared/components/dialog';
+import { ZardInputComponent } from '@/shared/components/input';
 import { ZardTableImports } from '@/shared/components/table';
 import { CreateTeamDialog } from './create-team-dialog/create-team-dialog';
 
 @Component({
   selector: 'app-teams',
-  imports: [ZardBadgeComponent, ZardButtonComponent, ZardTableImports],
+  imports: [FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardInputComponent, ZardTableImports],
   templateUrl: './teams.html',
 })
 export class Teams implements OnInit {
@@ -23,6 +25,17 @@ export class Teams implements OnInit {
   protected readonly users = signal<User[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly searchTerm = signal('');
+
+  protected readonly filteredTeams = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) {
+      return this.teams();
+    }
+    return this.teams().filter(
+      team => (team.teamDisplayName ?? '').toLowerCase().includes(term) || (team.teamName ?? '').toLowerCase().includes(term),
+    );
+  });
 
   ngOnInit(): void {
     this.load();

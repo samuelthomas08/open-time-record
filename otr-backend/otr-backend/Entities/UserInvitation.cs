@@ -12,6 +12,7 @@ public class UserInvitation
     public DateTime CreatedAt { get; set; }
     public DateTime ExpiresAt { get; set; }
     public DateTime? AcceptedAt { get; set; }
+    public bool IsArchived { get; set; }
 
     public User InvitedByUser { get; set; } = null!;
 }

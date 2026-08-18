@@ -7,6 +7,7 @@ import { AuthService } from '@/services/auth.service';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardDialogService } from '@/shared/components/dialog';
+import { ZardInputComponent } from '@/shared/components/input';
 import { ZardSelectImports } from '@/shared/components/select';
 import { ZardTableImports } from '@/shared/components/table';
 import { CreateUserDialog } from './create-user-dialog/create-user-dialog';
@@ -14,7 +15,7 @@ import { InviteUserDialog } from './invite-user-dialog/invite-user-dialog';
 
 @Component({
   selector: 'app-users',
-  imports: [DatePipe, FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardSelectImports, ZardTableImports],
+  imports: [DatePipe, FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardInputComponent, ZardSelectImports, ZardTableImports],
   templateUrl: './users.html',
 })
 export class Users implements OnInit {
@@ -29,6 +30,17 @@ export class Users implements OnInit {
   protected readonly users = signal<User[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly searchTerm = signal('');
+
+  protected readonly filteredUsers = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) {
+      return this.users();
+    }
+    return this.users().filter(
+      user => `${user.firstName} ${user.lastName}`.toLowerCase().includes(term) || (user.email ?? '').toLowerCase().includes(term),
+    );
+  });
 
   protected readonly invitations = signal<UserInvitation[]>([]);
 
@@ -140,6 +152,11 @@ export class Users implements OnInit {
     } finally {
       this.panelLoading.set(false);
     }
+  }
+
+  protected async archiveInvitation(invitation: UserInvitation): Promise<void> {
+    await this.userInvitationService.apiUserInvitationIdArchivePost({ id: invitation.id! });
+    await this.loadInvitations();
   }
 
   private async loadInvitations(): Promise<void> {

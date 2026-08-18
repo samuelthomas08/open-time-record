@@ -8,10 +8,23 @@
     <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
   }
 
+  @if (!loading() && teams().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
   @if (loading()) {
     <p class="mt-6 text-muted-foreground">Lädt…</p>
   } @else if (teams().length === 0) {
     <p class="mt-6 text-muted-foreground">Noch keine Teams.</p>
+  } @else if (filteredTeams().length === 0) {
+    <p class="mt-6 text-muted-foreground">Keine Teams gefunden.</p>
   } @else {
     <table z-table class="mt-6">
       <thead z-table-header>
@@ -24,7 +37,7 @@
         </tr>
       </thead>
       <tbody z-table-body>
-        @for (team of teams(); track team.id) {
+        @for (team of filteredTeams(); track team.id) {
           <tr z-table-row>
             <td z-table-cell>{{ team.teamDisplayName }}</td>
             <td z-table-cell class="font-mono text-xs text-muted-foreground">{{ team.teamName }}</td>

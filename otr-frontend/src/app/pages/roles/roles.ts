@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Role, RoleService } from '@/api-client';
@@ -6,6 +6,7 @@ import { AuthService } from '@/services/auth.service';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardDialogService } from '@/shared/components/dialog';
+import { ZardInputComponent } from '@/shared/components/input';
 import { ZardSelectImports } from '@/shared/components/select';
 import { ZardTableImports } from '@/shared/components/table';
 import { CreateRoleDialog } from './create-role-dialog/create-role-dialog';
@@ -45,7 +46,7 @@ const PERMISSION_LEVELS: ReadonlyArray<{ value: number; label: string }> = [
 
 @Component({
   selector: 'app-roles',
-  imports: [FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardSelectImports, ZardTableImports],
+  imports: [FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardInputComponent, ZardSelectImports, ZardTableImports],
   templateUrl: './roles.html',
 })
 export class Roles implements OnInit {
@@ -56,6 +57,17 @@ export class Roles implements OnInit {
   protected readonly roles = signal<Role[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly searchTerm = signal('');
+
+  protected readonly filteredRoles = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) {
+      return this.roles();
+    }
+    return this.roles().filter(
+      role => (role.roleDisplayName ?? '').toLowerCase().includes(term) || (role.roleName ?? '').toLowerCase().includes(term),
+    );
+  });
 
   protected readonly PERMISSION_RESOURCES = PERMISSION_RESOURCES;
   protected readonly PERMISSION_LEVELS = PERMISSION_LEVELS;
