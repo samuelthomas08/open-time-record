@@ -33,7 +33,7 @@ jobs:
           cache-dependency-path: otr-frontend/package-lock.json
 
       - name: Install frontend dependencies
-        run: npm ci
+        run: npm install
         working-directory: otr-frontend
 
       - name: Generate API client
