@@ -34,6 +34,7 @@ builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<ManagedUsersService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

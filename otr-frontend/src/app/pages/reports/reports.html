@@ -1,0 +1,80 @@
+<div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="text-xl font-semibold">Auswertungen</h1>
+
+    @if (!loading() && !error()) {
+      <div class="flex gap-1">
+        @for (p of PERIODS; track p.value) {
+          <button z-button [zType]="period() === p.value ? 'default' : 'outline'" zSize="sm" (click)="setPeriod(p.value)">
+            {{ p.label }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="mt-6 text-muted-foreground">Lädt…</p>
+  } @else if (error()) {
+    <p class="mt-6 text-destructive">{{ error() }}</p>
+  } @else if (employeeCount() === 0) {
+    <p class="mt-6 text-muted-foreground">
+      @if (authService.isSuperadmin()) {
+        Es sind noch keine anderen Nutzer angelegt.
+      } @else {
+        Du verwaltest aktuell kein Team. Sobald dir Mitarbeiter zugeordnet sind — als Team-Vorgesetzter oder als direkter
+        Vorgesetzter — siehst du hier ihre Arbeitszeiten.
+      }
+    </p>
+  } @else {
+    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div z-card>
+        <div z-card-content>
+          <p class="text-sm text-muted-foreground">Gesamtstunden</p>
+          <p class="mt-1 text-2xl font-semibold tabular-nums">{{ formatHours(totalHours()) }}</p>
+        </div>
+      </div>
+      <div z-card>
+        <div z-card-content>
+          <p class="text-sm text-muted-foreground">Mitarbeiter</p>
+          <p class="mt-1 text-2xl font-semibold tabular-nums">{{ employeeCount() }}</p>
+        </div>
+      </div>
+      <div z-card>
+        <div z-card-content>
+          <p class="text-sm text-muted-foreground">Ø pro Mitarbeiter</p>
+          <p class="mt-1 text-2xl font-semibold tabular-nums">{{ formatHours(averagePerEmployee()) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div z-card class="mt-4">
+      <div z-card-content>
+        <p class="text-sm font-medium">Stunden im Zeitverlauf</p>
+        <div class="mt-4">
+          <app-trend-chart [data]="trendData()" [valueFormatter]="trendValueFormatter" emptyMessage="Keine Zeiteinträge in diesem Zeitraum." />
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div z-card>
+        <div z-card-content>
+          <p class="text-sm font-medium">Stunden pro Mitarbeiter</p>
+          <div class="mt-4">
+            <app-bar-chart [data]="employeeBarData()" emptyMessage="Keine Mitarbeiter." />
+          </div>
+        </div>
+      </div>
+
+      <div z-card>
+        <div z-card-content>
+          <p class="text-sm font-medium">Stunden pro Projekt</p>
+          <div class="mt-4">
+            <app-bar-chart [data]="projectBarData()" emptyMessage="Keine Zeiteinträge in diesem Zeitraum." />
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

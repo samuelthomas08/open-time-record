@@ -47,6 +47,10 @@ import { apiTimeEntryStartPost$Json } from '../fn/time-entry/api-time-entry-star
 import { ApiTimeEntryStartPost$Json$Params } from '../fn/time-entry/api-time-entry-start-post-json';
 import { apiTimeEntryStartPost$Plain } from '../fn/time-entry/api-time-entry-start-post-plain';
 import { ApiTimeEntryStartPost$Plain$Params } from '../fn/time-entry/api-time-entry-start-post-plain';
+import { apiTimeEntryTeamGet$Json } from '../fn/time-entry/api-time-entry-team-get-json';
+import { ApiTimeEntryTeamGet$Json$Params } from '../fn/time-entry/api-time-entry-team-get-json';
+import { apiTimeEntryTeamGet$Plain } from '../fn/time-entry/api-time-entry-team-get-plain';
+import { ApiTimeEntryTeamGet$Plain$Params } from '../fn/time-entry/api-time-entry-team-get-plain';
 import { TimeEntry } from '../models/time-entry';
 import { TimeEntryBreak } from '../models/time-entry-break';
 
@@ -194,6 +198,53 @@ export class TimeEntryService extends BaseService {
    */
   apiTimeEntryMineGet$Json(params?: ApiTimeEntryMineGet$Json$Params, context?: HttpContext): Promise<Array<TimeEntry>> {
     const resp = this.apiTimeEntryMineGet$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<TimeEntry>>): Array<TimeEntry> => r.body);
+  }
+
+  /** Path part for operation `apiTimeEntryTeamGet()` */
+  static readonly ApiTimeEntryTeamGetPath = '/api/TimeEntry/team';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiTimeEntryTeamGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiTimeEntryTeamGet$Plain$Response(params?: ApiTimeEntryTeamGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<TimeEntry>>> {
+    const obs = apiTimeEntryTeamGet$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiTimeEntryTeamGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiTimeEntryTeamGet$Plain(params?: ApiTimeEntryTeamGet$Plain$Params, context?: HttpContext): Promise<Array<TimeEntry>> {
+    const resp = this.apiTimeEntryTeamGet$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<TimeEntry>>): Array<TimeEntry> => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiTimeEntryTeamGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiTimeEntryTeamGet$Json$Response(params?: ApiTimeEntryTeamGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<TimeEntry>>> {
+    const obs = apiTimeEntryTeamGet$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiTimeEntryTeamGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiTimeEntryTeamGet$Json(params?: ApiTimeEntryTeamGet$Json$Params, context?: HttpContext): Promise<Array<TimeEntry>> {
+    const resp = this.apiTimeEntryTeamGet$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<Array<TimeEntry>>): Array<TimeEntry> => r.body);
   }
 

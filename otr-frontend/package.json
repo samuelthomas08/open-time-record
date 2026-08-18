@@ -24,6 +24,7 @@
     "@angular/ssr": "^21.2.19",
     "@ng-icons/core": "^34.0.0",
     "@ng-icons/lucide": "^34.0.0",
+    "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "express": "^5.1.0",

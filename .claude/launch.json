@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "start", "--prefix", "otr-frontend"],
       "port": 4200
+    },
+    {
+      "name": "otr-frontend-verify",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start", "--prefix", "otr-frontend", "--", "--port", "4201"],
+      "port": 4201
     }
   ]
 }

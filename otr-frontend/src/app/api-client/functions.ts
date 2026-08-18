@@ -225,6 +225,10 @@ export type { ApiTimeEntryMineGet$Plain$Params as ApiTimeEntryMineGet$Plain$Para
 export { apiTimeEntryMineGet$Plain as apiTimeEntryMineGet$Plain } from './fn/time-entry/api-time-entry-mine-get-plain';
 export type { ApiTimeEntryMineGet$Json$Params as ApiTimeEntryMineGet$Json$Params } from './fn/time-entry/api-time-entry-mine-get-json';
 export { apiTimeEntryMineGet$Json as apiTimeEntryMineGet$Json } from './fn/time-entry/api-time-entry-mine-get-json';
+export type { ApiTimeEntryTeamGet$Plain$Params as ApiTimeEntryTeamGet$Plain$Params } from './fn/time-entry/api-time-entry-team-get-plain';
+export { apiTimeEntryTeamGet$Plain as apiTimeEntryTeamGet$Plain } from './fn/time-entry/api-time-entry-team-get-plain';
+export type { ApiTimeEntryTeamGet$Json$Params as ApiTimeEntryTeamGet$Json$Params } from './fn/time-entry/api-time-entry-team-get-json';
+export { apiTimeEntryTeamGet$Json as apiTimeEntryTeamGet$Json } from './fn/time-entry/api-time-entry-team-get-json';
 export type { ApiTimeEntryIdGet$Plain$Params as ApiTimeEntryIdGet$Plain$Params } from './fn/time-entry/api-time-entry-id-get-plain';
 export { apiTimeEntryIdGet$Plain as apiTimeEntryIdGet$Plain } from './fn/time-entry/api-time-entry-id-get-plain';
 export type { ApiTimeEntryIdGet$Json$Params as ApiTimeEntryIdGet$Json$Params } from './fn/time-entry/api-time-entry-id-get-json';
@@ -315,6 +319,10 @@ export type { ApiUserIdTeamsTeamIdPost$Params as ApiUserIdTeamsTeamIdPost$Params
 export { apiUserIdTeamsTeamIdPost as apiUserIdTeamsTeamIdPost } from './fn/user/api-user-id-teams-team-id-post';
 export type { ApiUserIdTeamsTeamIdDelete$Params as ApiUserIdTeamsTeamIdDelete$Params } from './fn/user/api-user-id-teams-team-id-delete';
 export { apiUserIdTeamsTeamIdDelete as apiUserIdTeamsTeamIdDelete } from './fn/user/api-user-id-teams-team-id-delete';
+export type { ApiUserManagedGet$Plain$Params as ApiUserManagedGet$Plain$Params } from './fn/user/api-user-managed-get-plain';
+export { apiUserManagedGet$Plain as apiUserManagedGet$Plain } from './fn/user/api-user-managed-get-plain';
+export type { ApiUserManagedGet$Json$Params as ApiUserManagedGet$Json$Params } from './fn/user/api-user-managed-get-json';
+export { apiUserManagedGet$Json as apiUserManagedGet$Json } from './fn/user/api-user-managed-get-json';
 export type { ApiUserMePermissionsGet$Plain$Params as ApiUserMePermissionsGet$Plain$Params } from './fn/user/api-user-me-permissions-get-plain';
 export { apiUserMePermissionsGet$Plain as apiUserMePermissionsGet$Plain } from './fn/user/api-user-me-permissions-get-plain';
 export type { ApiUserMePermissionsGet$Json$Params as ApiUserMePermissionsGet$Json$Params } from './fn/user/api-user-me-permissions-get-json';

@@ -44,6 +44,18 @@
               Korrekturen
             </a>
           </li>
+          <li z-navigation-menu-item>
+            <a
+              z-navigation-menu-link
+              class="w-auto rounded-md px-3 py-1.5 font-medium data-active:bg-muted data-active:text-foreground"
+              routerLink="/reports"
+              routerLinkActive
+              #rlaAuswertungen="routerLinkActive"
+              [zActive]="rlaAuswertungen.isActive"
+            >
+              Auswertungen
+            </a>
+          </li>
         </ul>
       </nav>
 

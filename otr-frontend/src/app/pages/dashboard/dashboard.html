@@ -1,4 +1,4 @@
-<div class="p-6">
+<div>
   <h1 class="text-xl font-semibold">{{ greeting() }}{{ authService.currentUser()?.firstName ? ', ' + authService.currentUser()?.firstName : '' }}!</h1>
   <p class="mt-1 text-muted-foreground">{{ todayLabel }}</p>
 
@@ -59,4 +59,8 @@
       </a>
     </div>
   }
+
+  <div class="mt-8">
+    <app-reports />
+  </div>
 </div>

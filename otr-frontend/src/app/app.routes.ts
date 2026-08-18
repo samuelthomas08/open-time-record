@@ -8,6 +8,7 @@ import { Activate } from './pages/activate/activate';
 import { Users } from './pages/users/users';
 import { Projects } from './pages/projects/projects';
 import { CorrectionRequests } from './pages/correction-requests/correction-requests';
+import { Reports } from './pages/reports/reports';
 import { SmtpSettingsPage } from './pages/smtp-settings/smtp-settings';
 import { SettingsLayout } from './pages/settings/settings-layout';
 import { SettingsAppearance } from './pages/settings/appearance/appearance';
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: '', component: Dashboard, canActivate: [authGuard] },
   { path: 'time-entries', component: TimeEntries, canActivate: [authGuard] },
   { path: 'correction-requests', component: CorrectionRequests, canActivate: [authGuard] },
+  { path: 'reports', component: Reports, canActivate: [authGuard] },
   {
     path: 'settings',
     component: SettingsLayout,

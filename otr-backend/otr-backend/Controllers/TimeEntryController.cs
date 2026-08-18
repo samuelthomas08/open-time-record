@@ -6,6 +6,7 @@ using otr_backend.Dtos;
 using otr_backend.Enums;
 using otr_backend.Extensions;
 using otr_backend.Models;
+using otr_backend.Services;
 
 namespace otr_backend.Controllers;
 
@@ -15,10 +16,12 @@ namespace otr_backend.Controllers;
 public class TimeEntryController : ControllerBase
 {
     private readonly OtrDbContext _context;
+    private readonly ManagedUsersService _managedUsersService;
 
-    public TimeEntryController(OtrDbContext context)
+    public TimeEntryController(OtrDbContext context, ManagedUsersService managedUsersService)
     {
         this._context = context;
+        this._managedUsersService = managedUsersService;
     }
 
     [HttpGet]
@@ -37,6 +40,27 @@ public class TimeEntryController : ControllerBase
             .OrderByDescending(t => t.StartTime)
             .ToListAsync();
 
+        return Ok(entries);
+    }
+
+    [HttpGet("team")]
+    public async Task<ActionResult<List<TimeEntry>>> GetTeamTimeEntries()
+    {
+        uint userId = User.GetUserId();
+
+        IQueryable<TimeEntry> query = _context.TimeEntries.Include(t => t.Breaks);
+
+        if (!User.IsInRole("Superadmin"))
+        {
+            HashSet<uint> managedIds = await _managedUsersService.GetManagedUserIdsAsync(userId);
+            query = query.Where(t => managedIds.Contains(t.UserId));
+        }
+        else
+        {
+            query = query.Where(t => t.UserId != userId);
+        }
+
+        List<TimeEntry> entries = await query.OrderByDescending(t => t.StartTime).ToListAsync();
         return Ok(entries);
     }
 

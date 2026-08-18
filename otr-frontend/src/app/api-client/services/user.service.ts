@@ -49,6 +49,10 @@ import { apiUserIdTeamsTeamIdDelete } from '../fn/user/api-user-id-teams-team-id
 import { ApiUserIdTeamsTeamIdDelete$Params } from '../fn/user/api-user-id-teams-team-id-delete';
 import { apiUserIdTeamsTeamIdPost } from '../fn/user/api-user-id-teams-team-id-post';
 import { ApiUserIdTeamsTeamIdPost$Params } from '../fn/user/api-user-id-teams-team-id-post';
+import { apiUserManagedGet$Json } from '../fn/user/api-user-managed-get-json';
+import { ApiUserManagedGet$Json$Params } from '../fn/user/api-user-managed-get-json';
+import { apiUserManagedGet$Plain } from '../fn/user/api-user-managed-get-plain';
+import { ApiUserManagedGet$Plain$Params } from '../fn/user/api-user-managed-get-plain';
 import { apiUserMePermissionsGet$Json } from '../fn/user/api-user-me-permissions-get-json';
 import { ApiUserMePermissionsGet$Json$Params } from '../fn/user/api-user-me-permissions-get-json';
 import { apiUserMePermissionsGet$Plain } from '../fn/user/api-user-me-permissions-get-plain';
@@ -496,6 +500,53 @@ export class UserService extends BaseService {
   apiUserIdTeamsTeamIdDelete(params: ApiUserIdTeamsTeamIdDelete$Params, context?: HttpContext): Promise<void> {
     const resp = this.apiUserIdTeamsTeamIdDelete$Response(params, context);
     return resp.then((r: StrictHttpResponse<void>): void => r.body);
+  }
+
+  /** Path part for operation `apiUserManagedGet()` */
+  static readonly ApiUserManagedGetPath = '/api/User/managed';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiUserManagedGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserManagedGet$Plain$Response(params?: ApiUserManagedGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<User>>> {
+    const obs = apiUserManagedGet$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiUserManagedGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserManagedGet$Plain(params?: ApiUserManagedGet$Plain$Params, context?: HttpContext): Promise<Array<User>> {
+    const resp = this.apiUserManagedGet$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<User>>): Array<User> => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiUserManagedGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserManagedGet$Json$Response(params?: ApiUserManagedGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<User>>> {
+    const obs = apiUserManagedGet$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiUserManagedGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiUserManagedGet$Json(params?: ApiUserManagedGet$Json$Params, context?: HttpContext): Promise<Array<User>> {
+    const resp = this.apiUserManagedGet$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<User>>): Array<User> => r.body);
   }
 
   /** Path part for operation `apiUserMePermissionsGet()` */

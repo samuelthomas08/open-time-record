@@ -21,13 +21,19 @@ public class UserController : ControllerBase
     private readonly OtrDbContext _context;
     private readonly IWebHostEnvironment _environment;
     private readonly PermissionService _permissionService;
+    private readonly ManagedUsersService _managedUsersService;
     private readonly PasswordHasher<User> _passwordHasher = new();
 
-    public UserController(OtrDbContext context, IWebHostEnvironment environment, PermissionService permissionService)
+    public UserController(
+        OtrDbContext context,
+        IWebHostEnvironment environment,
+        PermissionService permissionService,
+        ManagedUsersService managedUsersService)
     {
         this._context = context;
         this._environment = environment;
         this._permissionService = permissionService;
+        this._managedUsersService = managedUsersService;
     }
 
     [HttpGet]
@@ -320,6 +326,20 @@ public class UserController : ControllerBase
         _context.UserTeamMappings.Remove(mapping);
         await _context.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpGet("managed")]
+    public async Task<ActionResult<List<User>>> GetManagedUsers()
+    {
+        uint userId = User.GetUserId();
+
+        if (User.IsInRole("Superadmin"))
+        {
+            return Ok(await _context.Users.Where(u => u.Id != userId).ToListAsync());
+        }
+
+        HashSet<uint> managedIds = await _managedUsersService.GetManagedUserIdsAsync(userId);
+        return Ok(await _context.Users.Where(u => managedIds.Contains(u.Id)).ToListAsync());
     }
 
     [HttpGet("me/permissions")]

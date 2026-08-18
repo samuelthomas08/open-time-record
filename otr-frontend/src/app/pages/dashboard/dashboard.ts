@@ -5,6 +5,7 @@ import { TimeEntry, TimeEntryCorrectionRequestService, TimeEntryService, UserInv
 import { AuthService } from '@/services/auth.service';
 import { TimerService } from '@/services/timer.service';
 import { ContributionHeatmap } from '@/components/contribution-heatmap/contribution-heatmap';
+import { Reports } from '@/pages/reports/reports';
 import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components/card';
 
 function toDateKey(date: Date): string {
@@ -33,7 +34,7 @@ function formatHours(hours: number): string {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, ContributionHeatmap, ZardCardComponent, ZardCardContentComponent],
+  imports: [RouterLink, ContributionHeatmap, Reports, ZardCardComponent, ZardCardContentComponent],
   templateUrl: './dashboard.html',
 })
 export class Dashboard implements OnInit {
