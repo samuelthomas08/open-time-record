@@ -1,0 +1,16 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "Default": "Host=localhost;Database=otr;Username=postgres;Password=your_password_here"
+  },
+  "Jwt": {
+    "Issuer": "otr-backend",
+    "Audience": "otr-frontend",
+    "Key": "replace_with_a_long_random_secret_at_least_32_chars"
+  }
+}

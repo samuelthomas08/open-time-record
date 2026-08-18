@@ -1,0 +1,31 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <div z-field>
+    <label z-field-label for="roleName">Kurzname</label>
+    <input z-input id="roleName" type="text" name="roleName" required placeholder="manager" class="w-48" [(ngModel)]="roleName" />
+  </div>
+
+  <div z-field>
+    <label z-field-label for="roleDisplayName">Anzeigename</label>
+    <input
+      z-input
+      id="roleDisplayName"
+      type="text"
+      name="roleDisplayName"
+      required
+      placeholder="Vorgesetzter"
+      class="w-64"
+      [(ngModel)]="roleDisplayName"
+    />
+  </div>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird angelegt…' : 'Rolle anlegen' }}
+    </button>
+  </div>
+</form>

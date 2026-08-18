@@ -1,0 +1,101 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <div class="flex gap-3">
+    <div z-field>
+      <label z-field-label for="createUserFirstName">Vorname</label>
+      <input z-input id="createUserFirstName" type="text" name="createUserFirstName" required class="w-36" [(ngModel)]="firstName" />
+    </div>
+
+    <div z-field>
+      <label z-field-label for="createUserLastName">Nachname</label>
+      <input z-input id="createUserLastName" type="text" name="createUserLastName" required class="w-36" [(ngModel)]="lastName" />
+    </div>
+  </div>
+
+  <div z-field>
+    <label z-field-label for="createUserEmail">E-Mail-Adresse</label>
+    <input
+      z-input
+      id="createUserEmail"
+      type="email"
+      name="createUserEmail"
+      required
+      placeholder="person@example.com"
+      class="w-64"
+      [(ngModel)]="email"
+    />
+  </div>
+
+  <div z-field>
+    <label z-field-label for="createUserPassword">Passwort</label>
+    <input
+      z-input
+      id="createUserPassword"
+      type="password"
+      name="createUserPassword"
+      required
+      minlength="8"
+      class="w-56"
+      [(ngModel)]="password"
+    />
+  </div>
+
+  <div z-field>
+    <label z-field-label for="createUserRole">Rolle</label>
+    <z-select
+      id="createUserRole"
+      class="w-56"
+      zPlaceholder="Rolle wählen…"
+      [(ngModel)]="roleId"
+      [ngModelOptions]="{ standalone: true }"
+    >
+      @for (role of roles(); track role.id) {
+        <z-select-item [zValue]="role.id + ''">{{ role.roleDisplayName }}</z-select-item>
+      }
+    </z-select>
+  </div>
+
+  <div z-field>
+    <label z-field-label for="createUserTeam">Team (optional)</label>
+    <z-select
+      id="createUserTeam"
+      class="w-56"
+      zPlaceholder="Kein Team"
+      [(ngModel)]="teamId"
+      [ngModelOptions]="{ standalone: true }"
+      (ngModelChange)="onTeamChange($event)"
+    >
+      <z-select-item zValue="">Kein Team</z-select-item>
+      @for (team of teams(); track team.id) {
+        <z-select-item [zValue]="team.id + ''">{{ team.teamDisplayName }}</z-select-item>
+      }
+    </z-select>
+  </div>
+
+  <div z-field>
+    <label z-field-label for="createUserManager">Vorgesetzter (optional)</label>
+    <z-select
+      id="createUserManager"
+      class="w-56"
+      zPlaceholder="Kein Vorgesetzter"
+      [(ngModel)]="managerId"
+      [ngModelOptions]="{ standalone: true }"
+    >
+      <z-select-item zValue="">Kein Vorgesetzter</z-select-item>
+      @for (user of users(); track user.id) {
+        <z-select-item [zValue]="user.id + ''">{{ user.firstName }} {{ user.lastName }}</z-select-item>
+      }
+    </z-select>
+    <p class="text-sm text-muted-foreground">Wird beim Wählen eines Teams automatisch vorgeschlagen.</p>
+  </div>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird angelegt…' : 'Nutzer anlegen' }}
+    </button>
+  </div>
+</form>

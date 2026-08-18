@@ -1,0 +1,39 @@
+<div class="overflow-x-auto pb-1">
+  <div class="inline-block min-w-full">
+    <div class="ml-9 flex gap-[3px]">
+      @for (week of weeks(); track $index) {
+        <div class="w-[11px] shrink-0 text-xs whitespace-nowrap text-muted-foreground">
+          {{ monthLabelAt($index) }}
+        </div>
+      }
+    </div>
+
+    <div class="mt-1 flex gap-[3px]">
+      <div class="flex w-6 shrink-0 flex-col gap-[3px]">
+        @for (label of dayLabels; track $index) {
+          <div class="h-[11px] text-xs leading-[11px] text-muted-foreground">{{ label }}</div>
+        }
+      </div>
+
+      @for (week of weeks(); track $index) {
+        <div class="flex flex-col gap-[3px]">
+          @for (day of week.days; track day.dateKey) {
+            <div class="size-[11px] rounded-sm {{ cellClass(day) }}" [attr.title]="cellTitle(day)"></div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+  <p>{{ totalHoursLabel() }} Std. in den letzten 12 Monaten, an {{ activeDays() }} Tagen gearbeitet.</p>
+
+  <div class="flex items-center gap-1.5 text-xs">
+    <span>Weniger</span>
+    @for (level of legendLevels; track level) {
+      <div class="size-[11px] rounded-sm {{ legendClass(level) }}"></div>
+    }
+    <span>Mehr</span>
+  </div>
+</div>

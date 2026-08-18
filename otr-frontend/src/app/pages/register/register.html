@@ -1,0 +1,46 @@
+<div class="mx-auto flex min-h-[calc(100vh-57px)] max-w-sm flex-col justify-center px-4 py-12">
+  <h1 class="text-xl font-semibold">Registrieren</h1>
+  <p class="mt-1 text-sm text-muted-foreground">Leg dir ein Konto für Open Time Record an.</p>
+
+  <form class="mt-6 flex flex-col gap-4" (ngSubmit)="onSubmit()">
+    <div class="flex gap-3">
+      <div z-field>
+        <label z-field-label for="firstName">Vorname</label>
+        <input z-input id="firstName" type="text" name="firstName" required class="w-36" [(ngModel)]="firstName" />
+      </div>
+
+      <div z-field>
+        <label z-field-label for="lastName">Nachname</label>
+        <input z-input id="lastName" type="text" name="lastName" required class="w-36" [(ngModel)]="lastName" />
+      </div>
+    </div>
+
+    <div z-field>
+      <label z-field-label for="email">E-Mail</label>
+      <input z-input id="email" type="email" name="email" required class="w-64" [(ngModel)]="email" />
+    </div>
+
+    <div z-field>
+      <label z-field-label for="password">Passwort</label>
+      <input z-input id="password" type="password" name="password" required minlength="8" class="w-64" [(ngModel)]="password" />
+    </div>
+
+    <div z-field>
+      <label z-field-label for="invitationCode">Einladungscode (optional)</label>
+      <input z-input id="invitationCode" type="text" name="invitationCode" class="w-40" [(ngModel)]="invitationCode" />
+    </div>
+
+    @if (error()) {
+      <p class="text-sm text-destructive">{{ error() }}</p>
+    }
+
+    <button z-button zType="default" zSize="default" type="submit" [zDisabled]="loading()">
+      {{ loading() ? 'Wird angelegt…' : 'Registrieren' }}
+    </button>
+  </form>
+
+  <p class="mt-6 text-sm text-muted-foreground">
+    Schon ein Konto?
+    <a routerLink="/login" class="text-primary underline-offset-4 hover:underline">Anmelden</a>
+  </p>
+</div>

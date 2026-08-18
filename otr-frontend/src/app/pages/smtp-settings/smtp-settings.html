@@ -1,0 +1,88 @@
+<div class="p-6">
+  <h1 class="text-xl font-semibold">SMTP-Einstellungen</h1>
+
+  @if (!authService.isSuperadmin()) {
+    <p class="mt-4 text-muted-foreground">Diese Seite ist nur für Superadmins verfügbar.</p>
+  } @else if (loading()) {
+    <p class="mt-4 text-muted-foreground">Lädt…</p>
+  } @else {
+    @if (!isConfigured()) {
+      <p class="mt-4 text-sm text-muted-foreground">
+        Es ist noch kein SMTP-Server eingerichtet. Ohne SMTP können keine Bestätigungs- oder Einladungs-E-Mails
+        versendet werden.
+      </p>
+    }
+
+    @if (error()) {
+      <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+    }
+    @if (success()) {
+      <p class="mt-4 text-sm text-primary">{{ success() }}</p>
+    }
+
+    <form class="mt-4 grid max-w-xl gap-4" (ngSubmit)="save()">
+      <div z-field>
+        <label z-field-label for="host">Host</label>
+        <input z-input id="host" type="text" name="host" required placeholder="smtp.gmail.com" class="w-64" [(ngModel)]="host" />
+      </div>
+
+      <div class="flex items-end gap-4">
+        <div z-field>
+          <label z-field-label for="port">Port</label>
+          <input z-input id="port" type="number" name="port" required class="w-24" [(ngModel)]="port" />
+        </div>
+
+        <div class="pb-2">
+          <z-checkbox zId="useSsl" [(ngModel)]="useSsl" [ngModelOptions]="{ standalone: true }">SSL/TLS verwenden</z-checkbox>
+        </div>
+      </div>
+
+      <div z-field>
+        <label z-field-label for="username">Benutzername</label>
+        <input z-input id="username" type="text" name="username" required class="w-56" [(ngModel)]="username" />
+      </div>
+
+      <div z-field>
+        <label z-field-label for="password">
+          Passwort
+          @if (isConfigured()) {
+            <span class="font-normal text-muted-foreground">(leer lassen, um das bestehende beizubehalten)</span>
+          }
+        </label>
+        <input z-input id="password" type="password" name="password" [required]="!isConfigured()" class="w-56" [(ngModel)]="password" />
+      </div>
+
+      <div z-field>
+        <label z-field-label for="fromAddress">Absenderadresse</label>
+        <input
+          z-input
+          id="fromAddress"
+          type="email"
+          name="fromAddress"
+          required
+          placeholder="noreply@example.com"
+          class="w-64"
+          [(ngModel)]="fromAddress"
+        />
+      </div>
+
+      <div z-field>
+        <label z-field-label for="fromName">Absendername</label>
+        <input
+          z-input
+          id="fromName"
+          type="text"
+          name="fromName"
+          required
+          placeholder="Open Time Record"
+          class="w-56"
+          [(ngModel)]="fromName"
+        />
+      </div>
+
+      <button z-button zType="default" zSize="default" type="submit" [zDisabled]="saving()" class="w-fit">
+        {{ saving() ? 'Wird gespeichert…' : 'Speichern' }}
+      </button>
+    </form>
+  }
+</div>

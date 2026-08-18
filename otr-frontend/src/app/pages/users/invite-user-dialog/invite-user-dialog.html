@@ -1,0 +1,110 @@
+@if (linkResult(); as link) {
+  <div class="flex flex-col gap-4">
+    <p class="text-sm text-muted-foreground">Einladungslink für {{ email }}:</p>
+    <div class="flex items-center gap-2">
+      <input z-input readonly class="w-full font-mono text-xs" [value]="link" />
+      <button z-button zType="outline" type="button" (click)="copyLink(link)">
+        {{ copied() ? 'Kopiert!' : 'Kopieren' }}
+      </button>
+    </div>
+    <div class="flex justify-end">
+      <button z-button zType="default" type="button" (click)="close()">Fertig</button>
+    </div>
+  </div>
+} @else {
+  <form class="flex flex-col gap-4" (ngSubmit)="submit()">
+    <div z-field>
+      <label z-field-label for="inviteEmail">E-Mail-Adresse</label>
+      <input
+        z-input
+        id="inviteEmail"
+        type="email"
+        name="inviteEmail"
+        required
+        placeholder="person@example.com"
+        class="w-64"
+        [(ngModel)]="email"
+      />
+    </div>
+
+    <div z-field>
+      <label z-field-label for="inviteRole">Rolle</label>
+      <z-select
+        id="inviteRole"
+        class="w-56"
+        zPlaceholder="Rolle wählen…"
+        [(ngModel)]="roleId"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        @for (role of roles(); track role.id) {
+          <z-select-item [zValue]="role.id + ''">{{ role.roleDisplayName }}</z-select-item>
+        }
+      </z-select>
+    </div>
+
+    <div z-field>
+      <label z-field-label for="inviteTeam">Team (optional)</label>
+      <z-select
+        id="inviteTeam"
+        class="w-56"
+        zPlaceholder="Kein Team"
+        [(ngModel)]="teamId"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onTeamChange($event)"
+      >
+        <z-select-item zValue="">Kein Team</z-select-item>
+        @for (team of teams(); track team.id) {
+          <z-select-item [zValue]="team.id + ''">{{ team.teamDisplayName }}</z-select-item>
+        }
+      </z-select>
+    </div>
+
+    <div z-field>
+      <label z-field-label for="inviteManager">Vorgesetzter (optional)</label>
+      <z-select
+        id="inviteManager"
+        class="w-56"
+        zPlaceholder="Kein Vorgesetzter"
+        [(ngModel)]="managerId"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        <z-select-item zValue="">Kein Vorgesetzter</z-select-item>
+        @for (user of users(); track user.id) {
+          <z-select-item [zValue]="user.id + ''">{{ user.firstName }} {{ user.lastName }}</z-select-item>
+        }
+      </z-select>
+      <p class="text-sm text-muted-foreground">Wird beim Wählen eines Teams automatisch vorgeschlagen.</p>
+    </div>
+
+    <div z-field>
+      <div class="flex items-center justify-between gap-4">
+        <label z-field-label for="sendEmailSwitch">Per E-Mail versenden</label>
+        <z-switch id="sendEmailSwitch" [zChecked]="sendEmail" (zCheckedChange)="setSendEmail($event)" />
+      </div>
+      <p class="text-sm text-muted-foreground">
+        @if (sendEmail) {
+          Der Einladungscode wird per E-Mail verschickt.
+        } @else {
+          Es wird ein Link erzeugt, den du selbst teilen kannst.
+        }
+      </p>
+    </div>
+
+    @if (error()) {
+      <p class="text-sm text-destructive">{{ error() }}</p>
+    }
+
+    <div class="flex justify-end gap-2">
+      <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+      <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+        @if (submitting()) {
+          Wird gesendet…
+        } @else if (sendEmail) {
+          Einladen
+        } @else {
+          Link erstellen
+        }
+      </button>
+    </div>
+  </form>
+}

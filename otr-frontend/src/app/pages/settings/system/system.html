@@ -1,0 +1,39 @@
+<div class="p-6">
+  <h1 class="text-xl font-semibold">System</h1>
+
+  <div z-card class="mt-4 max-w-md">
+    <div z-card-content class="flex items-center justify-between gap-4">
+      <div>
+        <p class="text-sm font-medium">Profilbilder</p>
+        <p class="text-sm text-muted-foreground">Erlaubt allen Nutzern, ein eigenes Profilbild hochzuladen.</p>
+      </div>
+      @if (loading()) {
+        <p class="text-sm text-muted-foreground">Lädt…</p>
+      } @else {
+        <z-switch
+          [zChecked]="profilePicturesEnabled()"
+          [zDisabled]="saving()"
+          (zCheckedChange)="toggleProfilePictures($event)"
+        />
+      }
+    </div>
+  </div>
+
+  <div z-card class="mt-4 max-w-md">
+    <div z-card-content class="flex items-center justify-between gap-4">
+      <div>
+        <p class="text-sm font-medium">Pausengrund erforderlich</p>
+        <p class="text-sm text-muted-foreground">Verlangt beim Starten einer Pause eine Begründung.</p>
+      </div>
+      @if (loading()) {
+        <p class="text-sm text-muted-foreground">Lädt…</p>
+      } @else {
+        <z-switch
+          [zChecked]="breakReasonRequired()"
+          [zDisabled]="saving()"
+          (zCheckedChange)="toggleBreakReasonRequired($event)"
+        />
+      }
+    </div>
+  </div>
+</div>

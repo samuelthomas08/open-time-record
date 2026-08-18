@@ -1,0 +1,70 @@
+<header class="bg-background px-6 py-5 mb-4">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">
+    <a routerLink="/" class="flex items-center" aria-label="Open Time Record">
+      <app-logo class="h-5 w-auto text-foreground" />
+    </a>
+
+    @if (authService.isLoggedIn()) {
+      <nav z-navigation-menu [zViewport]="false">
+        <ul z-navigation-menu-list class="gap-1">
+          <li z-navigation-menu-item>
+            <a
+              z-navigation-menu-link
+              class="w-auto rounded-md px-3 py-1.5 font-medium data-active:bg-muted data-active:text-foreground"
+              routerLink="/"
+              [routerLinkActiveOptions]="{ exact: true }"
+              routerLinkActive
+              #rlaDashboard="routerLinkActive"
+              [zActive]="rlaDashboard.isActive"
+            >
+              Dashboard
+            </a>
+          </li>
+          <li z-navigation-menu-item>
+            <a
+              z-navigation-menu-link
+              class="w-auto rounded-md px-3 py-1.5 font-medium data-active:bg-muted data-active:text-foreground"
+              routerLink="/time-entries"
+              routerLinkActive
+              #rlaZeiterfassung="routerLinkActive"
+              [zActive]="rlaZeiterfassung.isActive"
+            >
+              Zeiterfassung
+            </a>
+          </li>
+          <li z-navigation-menu-item>
+            <a
+              z-navigation-menu-link
+              class="w-auto rounded-md px-3 py-1.5 font-medium data-active:bg-muted data-active:text-foreground"
+              routerLink="/correction-requests"
+              routerLinkActive
+              #rlaKorrekturen="routerLinkActive"
+              [zActive]="rlaKorrekturen.isActive"
+            >
+              Korrekturen
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        @if (timerService.isRunning()) {
+          <span class="font-mono text-sm tabular-nums text-muted-foreground">{{ timerService.elapsed() }}</span>
+          <button z-button zType="destructive" zSize="sm" (click)="toggleTimer()">
+            <ng-icon name="lucideSquare" size="14" />
+            Stoppen
+          </button>
+        } @else {
+          <button z-button zType="default" zSize="sm" (click)="toggleTimer()">
+            <ng-icon name="lucidePlay" size="16" />
+            Zeit starten
+          </button>
+        }
+
+        <app-user-menu />
+      </div>
+    } @else {
+      <a routerLink="/login" z-button zType="default" zSize="sm">Anmelden</a>
+    }
+  </div>
+</header>

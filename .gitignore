@@ -1,0 +1,24 @@
+# === .NET (otr-backend) ===
+bin/
+obj/
+*.user
+*.suo
+appsettings.Development.json
+
+# === Node / Angular (otr-frontend) ===
+node_modules/
+dist/
+.angular/
+
+# === IDEs ===
+.vs/
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# === OS ===
+.DS_Store
+Thumbs.db

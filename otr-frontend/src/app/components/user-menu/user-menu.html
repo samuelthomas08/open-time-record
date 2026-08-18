@@ -1,0 +1,66 @@
+<button
+  z-dropdown
+  [zDropdownMenu]="menu"
+  zAlign="end"
+  class="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-xs font-medium text-muted-foreground transition-opacity hover:opacity-80"
+  aria-label="Benutzermenü"
+>
+  @if (profilePicturesEnabled() && pictureSrc()) {
+    <img [src]="pictureSrc()" alt="" class="size-full object-cover" />
+  } @else {
+    {{ initials() }}
+  }
+</button>
+
+<z-dropdown-menu-content #menu="zDropdownMenuContent" class="w-64">
+  <z-dropdown-menu-label>
+    <div class="flex items-center gap-3 py-1">
+      @if (profilePicturesEnabled()) {
+        <div
+          class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted text-sm font-medium text-muted-foreground"
+        >
+          @if (pictureSrc()) {
+            <img [src]="pictureSrc()" alt="" class="size-full object-cover" />
+          } @else {
+            {{ initials() }}
+          }
+        </div>
+      }
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <p class="truncate text-sm font-medium text-foreground">{{ fullName() }}</p>
+        <p class="truncate text-xs font-normal text-muted-foreground">{{ user()?.email }}</p>
+      </div>
+    </div>
+  </z-dropdown-menu-label>
+
+  @if (profilePicturesEnabled()) {
+    <z-dropdown-menu-separator />
+    <z-dropdown-menu-item [zDisabled]="uploading()" (click)="triggerFileInput()">
+      @if (uploading()) {
+        Wird hochgeladen…
+      } @else if (pictureSrc()) {
+        Bild ändern
+      } @else {
+        Bild hochladen
+      }
+    </z-dropdown-menu-item>
+    @if (pictureSrc()) {
+      <z-dropdown-menu-item [zDisabled]="uploading()" (click)="removePicture()">Bild entfernen</z-dropdown-menu-item>
+    }
+    @if (error()) {
+      <p class="px-2 py-1 text-xs text-destructive">{{ error() }}</p>
+    }
+  }
+
+  <z-dropdown-menu-separator />
+  <a z-dropdown-menu-item routerLink="/settings">Einstellungen</a>
+  <z-dropdown-menu-item (click)="logout()">Abmelden</z-dropdown-menu-item>
+</z-dropdown-menu-content>
+
+<input
+  #fileInput
+  type="file"
+  accept="image/png,image/jpeg,image/gif,image/webp"
+  class="hidden"
+  (change)="onFileSelected($event)"
+/>

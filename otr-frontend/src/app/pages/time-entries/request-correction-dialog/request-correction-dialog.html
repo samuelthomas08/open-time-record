@@ -1,0 +1,67 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <div z-field>
+    <label z-field-label>Vorgesetzter</label>
+    <p class="text-sm text-muted-foreground">
+      @if (loadingManagers()) {
+        Lädt…
+      } @else if (managerNames().length > 0) {
+        <span class="text-foreground">{{ managerNames().join(', ') }}</span>
+      } @else {
+        Kein Vorgesetzter zugewiesen
+      }
+    </p>
+  </div>
+
+  <div z-field>
+    <label z-field-label for="proposedStartDate">Neuer Start</label>
+    <div class="flex items-center gap-2">
+      <z-date-picker
+        zId="proposedStartDate"
+        zCaptionLayout="dropdown"
+        zPlaceholder="Datum"
+        zFormat="d. MMM yyyy"
+        [(value)]="proposedStartDate"
+      />
+      <input z-input type="time" name="proposedStartTimeOfDay" class="w-28" [(ngModel)]="proposedStartTimeOfDay" />
+    </div>
+  </div>
+
+  <div z-field>
+    <label z-field-label for="proposedEndDate">Neues Ende</label>
+    <div class="flex items-center gap-2">
+      <z-date-picker
+        zId="proposedEndDate"
+        zCaptionLayout="dropdown"
+        zPlaceholder="Datum"
+        zFormat="d. MMM yyyy"
+        [(value)]="proposedEndDate"
+      />
+      <input z-input type="time" name="proposedEndTimeOfDay" class="w-28" [(ngModel)]="proposedEndTimeOfDay" />
+    </div>
+  </div>
+
+  <div z-field>
+    <label z-field-label for="reason">Grund</label>
+    <input
+      z-input
+      id="reason"
+      type="text"
+      name="reason"
+      required
+      placeholder="z. B. vergessen zu stoppen"
+      class="w-64"
+      [(ngModel)]="reason"
+    />
+  </div>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird gesendet…' : 'Antrag stellen' }}
+    </button>
+  </div>
+</form>

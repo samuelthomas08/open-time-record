@@ -1,0 +1,62 @@
+<div class="p-6">
+  <h1 class="text-xl font-semibold">{{ greeting() }}{{ authService.currentUser()?.firstName ? ', ' + authService.currentUser()?.firstName : '' }}!</h1>
+  <p class="mt-1 text-muted-foreground">{{ todayLabel }}</p>
+
+  <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div z-card>
+      <div z-card-content>
+        <p class="text-sm text-muted-foreground">Heute</p>
+        <p class="mt-1 text-2xl font-semibold tabular-nums">{{ formatHours(todayHours()) }}</p>
+      </div>
+    </div>
+    <div z-card>
+      <div z-card-content>
+        <p class="text-sm text-muted-foreground">Diese Woche</p>
+        <p class="mt-1 text-2xl font-semibold tabular-nums">{{ formatHours(weekHours()) }}</p>
+      </div>
+    </div>
+    <div z-card>
+      <div z-card-content>
+        <p class="text-sm text-muted-foreground">Dieser Monat</p>
+        <p class="mt-1 text-2xl font-semibold tabular-nums">{{ formatHours(monthHours()) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div z-card class="mt-4">
+    <div z-card-content>
+      <p class="text-sm font-medium">Aktivität</p>
+      @if (loading()) {
+        <p class="mt-4 text-sm text-muted-foreground">Lädt…</p>
+      } @else {
+        <div class="mt-4">
+          <app-contribution-heatmap [hoursByDate]="hoursByDate()" />
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (authService.isSuperadmin()) {
+    <h2 class="mt-8 text-sm font-medium text-muted-foreground">Verwaltung</h2>
+    <div class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <a routerLink="/correction-requests" z-card class="transition-colors hover:bg-muted/40">
+        <div z-card-content>
+          <p class="text-sm text-muted-foreground">Offene Korrekturanträge</p>
+          <p class="mt-1 text-2xl font-semibold tabular-nums">{{ pendingCorrectionsCount() ?? '—' }}</p>
+        </div>
+      </a>
+      <a routerLink="/settings/users" z-card class="transition-colors hover:bg-muted/40">
+        <div z-card-content>
+          <p class="text-sm text-muted-foreground">Offene Einladungen</p>
+          <p class="mt-1 text-2xl font-semibold tabular-nums">{{ pendingInvitationsCount() ?? '—' }}</p>
+        </div>
+      </a>
+      <a routerLink="/settings/users" z-card class="transition-colors hover:bg-muted/40">
+        <div z-card-content>
+          <p class="text-sm text-muted-foreground">Aktive Nutzer</p>
+          <p class="mt-1 text-2xl font-semibold tabular-nums">{{ activeUsersCount() ?? '—' }}</p>
+        </div>
+      </a>
+    </div>
+  }
+</div>

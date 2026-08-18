@@ -1,0 +1,49 @@
+name: Generate API Client
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'otr-backend/**'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build backend (generates openapi.json)
+        run: dotnet build
+        working-directory: otr-backend/otr-backend
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: otr-frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: otr-frontend
+
+      - name: Generate API client
+        run: npm run generate:api-client
+        working-directory: otr-frontend
+
+      - name: Commit regenerated client
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add otr-frontend/src/app/api-client
+          git diff --cached --quiet && echo "No changes to commit" || git commit -m "chore: regenerate api-client from backend changes"
+          git push
