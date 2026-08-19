@@ -1,5 +1,5 @@
 <form class="flex flex-col gap-4" (ngSubmit)="submit()">
-  <div z-field>
+  <z-field>
     <label z-field-label for="breakReason">Grund{{ data.reasonRequired ? '' : ' (optional)' }}</label>
     <input
       z-input
@@ -11,7 +11,7 @@
       class="w-64"
       [(ngModel)]="reason"
     />
-  </div>
+  </z-field>
 
   @if (error()) {
     <p class="text-sm text-destructive">{{ error() }}</p>

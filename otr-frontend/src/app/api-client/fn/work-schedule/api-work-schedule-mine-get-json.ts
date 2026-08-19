@@ -9,11 +9,11 @@ import { RequestBuilder } from '../../request-builder';
 
 import { WorkSchedule } from '../../models/work-schedule';
 
-export interface ApiWorkScheduleGet$Json$Params {
+export interface ApiWorkScheduleMineGet$Json$Params {
 }
 
-export function apiWorkScheduleGet$Json(http: HttpClient, rootUrl: string, params?: ApiWorkScheduleGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<WorkSchedule>>> {
-  const rb = new RequestBuilder(rootUrl, apiWorkScheduleGet$Json.PATH, 'get');
+export function apiWorkScheduleMineGet$Json(http: HttpClient, rootUrl: string, params?: ApiWorkScheduleMineGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<WorkSchedule>>> {
+  const rb = new RequestBuilder(rootUrl, apiWorkScheduleMineGet$Json.PATH, 'get');
   if (params) {
   }
 
@@ -27,4 +27,4 @@ export function apiWorkScheduleGet$Json(http: HttpClient, rootUrl: string, param
   );
 }
 
-apiWorkScheduleGet$Json.PATH = '/api/WorkSchedule';
+apiWorkScheduleMineGet$Json.PATH = '/api/WorkSchedule/mine';

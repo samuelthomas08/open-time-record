@@ -8,15 +8,18 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { WorkSchedule } from '../../models/work-schedule';
+import { WorkScheduleUpsertRequest } from '../../models/work-schedule-upsert-request';
 
-export interface ApiWorkScheduleIdGet$Plain$Params {
+export interface ApiWorkScheduleIdPut$Plain$Params {
   id: (number | string);
+      body: WorkScheduleUpsertRequest
 }
 
-export function apiWorkScheduleIdGet$Plain(http: HttpClient, rootUrl: string, params: ApiWorkScheduleIdGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<WorkSchedule>> {
-  const rb = new RequestBuilder(rootUrl, apiWorkScheduleIdGet$Plain.PATH, 'get');
+export function apiWorkScheduleIdPut$Plain(http: HttpClient, rootUrl: string, params: ApiWorkScheduleIdPut$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<WorkSchedule>> {
+  const rb = new RequestBuilder(rootUrl, apiWorkScheduleIdPut$Plain.PATH, 'put');
   if (params) {
     rb.path('id', params.id, {});
+    rb.body(params.body, 'application/*+json');
   }
 
   return http.request(
@@ -29,4 +32,4 @@ export function apiWorkScheduleIdGet$Plain(http: HttpClient, rootUrl: string, pa
   );
 }
 
-apiWorkScheduleIdGet$Plain.PATH = '/api/WorkSchedule/{id}';
+apiWorkScheduleIdPut$Plain.PATH = '/api/WorkSchedule/{id}';

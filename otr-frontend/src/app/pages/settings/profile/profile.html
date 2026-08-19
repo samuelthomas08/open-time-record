@@ -1,8 +1,8 @@
 <div class="p-6">
   <h1 class="text-xl font-semibold">Profil</h1>
 
-  <div z-card class="mt-4 max-w-md">
-    <div z-card-content class="flex flex-col gap-5">
+  <z-card class="mt-4 max-w-md">
+    <z-card-content class="flex flex-col gap-5">
       <div>
         <p class="font-medium">{{ fullName() }}</p>
         <p class="text-sm text-muted-foreground">{{ user()?.email }}</p>
@@ -43,8 +43,8 @@
           }
         </div>
       </div>
-    </div>
-  </div>
+    </z-card-content>
+  </z-card>
 
   <input #fileInput type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="hidden" (change)="onFileSelected($event)" />
 </div>

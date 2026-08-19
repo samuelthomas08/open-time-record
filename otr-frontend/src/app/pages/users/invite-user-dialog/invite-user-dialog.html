@@ -13,7 +13,7 @@
   </div>
 } @else {
   <form class="flex flex-col gap-4" (ngSubmit)="submit()">
-    <div z-field>
+    <z-field>
       <label z-field-label for="inviteEmail">E-Mail-Adresse</label>
       <input
         z-input
@@ -25,9 +25,9 @@
         class="w-64"
         [(ngModel)]="email"
       />
-    </div>
+    </z-field>
 
-    <div z-field>
+    <z-field>
       <label z-field-label for="inviteRole">Rolle</label>
       <z-select
         id="inviteRole"
@@ -40,9 +40,9 @@
           <z-select-item [zValue]="role.id + ''">{{ role.roleDisplayName }}</z-select-item>
         }
       </z-select>
-    </div>
+    </z-field>
 
-    <div z-field>
+    <z-field>
       <label z-field-label for="inviteTeam">Team (optional)</label>
       <z-select
         id="inviteTeam"
@@ -57,9 +57,9 @@
           <z-select-item [zValue]="team.id + ''">{{ team.teamDisplayName }}</z-select-item>
         }
       </z-select>
-    </div>
+    </z-field>
 
-    <div z-field>
+    <z-field>
       <label z-field-label for="inviteManager">Vorgesetzter (optional)</label>
       <z-select
         id="inviteManager"
@@ -74,9 +74,9 @@
         }
       </z-select>
       <p class="text-sm text-muted-foreground">Wird beim Wählen eines Teams automatisch vorgeschlagen.</p>
-    </div>
+    </z-field>
 
-    <div z-field>
+    <z-field>
       <div class="flex items-center justify-between gap-4">
         <label z-field-label for="sendEmailSwitch">Per E-Mail versenden</label>
         <z-switch id="sendEmailSwitch" [zChecked]="sendEmail" (zCheckedChange)="setSendEmail($event)" />
@@ -88,7 +88,7 @@
           Es wird ein Link erzeugt, den du selbst teilen kannst.
         }
       </p>
-    </div>
+    </z-field>
 
     @if (error()) {
       <p class="text-sm text-destructive">{{ error() }}</p>

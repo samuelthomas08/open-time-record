@@ -1,11 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
-import { Project, ProjectService, TimeEntry, TimeEntryService, User, UserService } from '@/api-client';
+import { Project, ProjectService, TimeEntry, TimeEntryService, User, UserService, WorkSchedule, WorkScheduleService } from '@/api-client';
 import { AuthService } from '@/services/auth.service';
 import { BarChart, type BarChartDatum } from '@/components/bar-chart/bar-chart';
 import { TrendChart, type TrendPoint } from '@/components/trend-chart/trend-chart';
 import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components/card';
+import { ZardSelectImports } from '@/shared/components/select';
 
 type Period = 7 | 30 | 90 | 365;
 
@@ -19,6 +21,16 @@ const PERIODS: ReadonlyArray<{ value: Period; label: string }> = [
 /** Bucket by week rather than by day once a period gets long, so the trend chart doesn't plot hundreds of points. */
 const WEEKLY_BUCKET_THRESHOLD_DAYS = 60;
 
+const DAY_KEYS = [
+  'sundayHours',
+  'mondayHours',
+  'tuesdayHours',
+  'wednesdayHours',
+  'thursdayHours',
+  'fridayHours',
+  'saturdayHours',
+] as const;
+
 function formatHours(hours: number): string {
   const totalMinutes = Math.round(hours * 60);
   const h = Math.floor(totalMinutes / 60);
@@ -29,6 +41,10 @@ function formatHours(hours: number): string {
 function toDateKey(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function toDateOnly(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
 function startOfWeek(date: Date): Date {
@@ -64,15 +80,49 @@ function netHours(entry: TimeEntry): number {
   return Math.max(0, grossMs - breakMs) / 3_600_000;
 }
 
+/** The target hours for one specific weekday, from whichever schedule period was effective on that date. */
+function targetHoursForDate(date: Date, schedules: WorkSchedule[]): number {
+  const dateOnly = toDateOnly(date);
+
+  const match = [...schedules]
+    .sort((a, b) => new Date(b.effectiveFrom!).getTime() - new Date(a.effectiveFrom!).getTime())
+    .find(s => {
+      const fromOnly = toDateOnly(new Date(s.effectiveFrom!));
+      if (fromOnly > dateOnly) {
+        return false;
+      }
+      if (!s.effectiveTo) {
+        return true;
+      }
+      return dateOnly <= toDateOnly(new Date(s.effectiveTo));
+    });
+
+  if (!match) {
+    return 0;
+  }
+  return Number(match[DAY_KEYS[date.getDay()]] ?? 0);
+}
+
+function sumTargetHoursForWeek(monday: Date, schedules: WorkSchedule[]): number {
+  let sum = 0;
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(monday);
+    day.setDate(day.getDate() + i);
+    sum += targetHoursForDate(day, schedules);
+  }
+  return sum;
+}
+
 @Component({
   selector: 'app-reports',
-  imports: [BarChart, TrendChart, ZardButtonComponent, ZardCardComponent, ZardCardContentComponent],
+  imports: [FormsModule, BarChart, TrendChart, ZardButtonComponent, ZardCardComponent, ZardCardContentComponent, ZardSelectImports],
   templateUrl: './reports.html',
 })
 export class Reports implements OnInit {
   private readonly userService = inject(UserService);
   private readonly timeEntryService = inject(TimeEntryService);
   private readonly projectService = inject(ProjectService);
+  private readonly workScheduleService = inject(WorkScheduleService);
 
   protected readonly authService = inject(AuthService);
 
@@ -82,11 +132,40 @@ export class Reports implements OnInit {
   protected readonly managedUsers = signal<User[]>([]);
   protected readonly entries = signal<TimeEntry[]>([]);
   protected readonly projects = signal<Project[]>([]);
+  protected readonly workSchedules = signal<WorkSchedule[]>([]);
+  protected readonly myEntries = signal<TimeEntry[]>([]);
+  protected readonly mySchedule = signal<WorkSchedule[]>([]);
 
   protected readonly period = signal<Period>(30);
   protected readonly PERIODS = PERIODS;
   protected readonly formatHours = formatHours;
   protected readonly trendValueFormatter = (value: number): string => formatHours(value);
+
+  protected readonly canPickEmployee = computed(() => this.managedUsers().length > 0);
+  protected readonly selectedUserId = signal('');
+
+  protected readonly selectedEmployeeName = computed(() => {
+    if (this.canPickEmployee()) {
+      const user = this.managedUsers().find(u => String(u.id) === this.selectedUserId());
+      return user ? `${user.firstName} ${user.lastName}` : '';
+    }
+    const me = this.authService.currentUser();
+    return me ? `${me.firstName} ${me.lastName}` : '';
+  });
+
+  private readonly selectedEmployeeEntries = computed(() => {
+    if (!this.canPickEmployee()) {
+      return this.myEntries();
+    }
+    return this.entries().filter(e => String(e.userId) === this.selectedUserId());
+  });
+
+  private readonly selectedEmployeeSchedules = computed(() => {
+    if (!this.canPickEmployee()) {
+      return this.mySchedule();
+    }
+    return this.workSchedules().filter(s => String(s.userId) === this.selectedUserId());
+  });
 
   private readonly cutoff = computed(() => {
     const date = new Date();
@@ -101,10 +180,6 @@ export class Reports implements OnInit {
 
   protected readonly totalHours = computed(() => this.completedEntriesInPeriod().reduce((sum, e) => sum + netHours(e), 0));
   protected readonly employeeCount = computed(() => this.managedUsers().length);
-  protected readonly averagePerEmployee = computed(() => {
-    const count = this.employeeCount();
-    return count === 0 ? 0 : this.totalHours() / count;
-  });
 
   protected readonly employeeBarData = computed<BarChartDatum[]>(() => {
     const byUser = new Map<number, number>();
@@ -140,11 +215,15 @@ export class Reports implements OnInit {
       .map(item => ({ ...item, displayValue: formatHours(item.value) }));
   });
 
+  private readonly selectedCompletedEntriesInPeriod = computed(() =>
+    this.selectedEmployeeEntries().filter(e => e.startTime && e.endTime && new Date(e.startTime!) >= this.cutoff()),
+  );
+
   protected readonly trendData = computed<TrendPoint[]>(() => {
     const weekly = this.period() > WEEKLY_BUCKET_THRESHOLD_DAYS;
     const byBucket = new Map<string, number>();
 
-    for (const entry of this.completedEntriesInPeriod()) {
+    for (const entry of this.selectedCompletedEntriesInPeriod()) {
       const date = new Date(entry.startTime!);
       const key = weekly ? toDateKey(startOfWeek(date)) : toDateKey(date);
       byBucket.set(key, (byBucket.get(key) ?? 0) + netHours(entry));
@@ -163,11 +242,14 @@ export class Reports implements OnInit {
       cursor.setDate(cursor.getDate() + step);
     }
 
+    const schedules = this.selectedEmployeeSchedules();
+
     return bucketDates.map(date => {
       const key = toDateKey(date);
       const value = byBucket.get(key) ?? 0;
+      const targetValue = weekly ? sumTargetHoursForWeek(date, schedules) : targetHoursForDate(date, schedules);
       const label = weekly ? `KW ${isoWeekNumber(date)}` : date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-      return { label, value, title: `${label}: ${formatHours(value)}` };
+      return { label, value, targetValue, title: `${label}: ${formatHours(value)}` };
     });
   });
 
@@ -179,18 +261,32 @@ export class Reports implements OnInit {
     this.period.set(value);
   }
 
+  protected setSelectedUserId(id: string): void {
+    this.selectedUserId.set(id);
+  }
+
   private async load(): Promise<void> {
     this.loading.set(true);
 
     try {
-      const [managedUsers, entries, projects] = await Promise.all([
+      const [managedUsers, entries, projects, workSchedules, myEntries, mySchedule] = await Promise.all([
         this.userService.apiUserManagedGet$Json(),
         this.timeEntryService.apiTimeEntryTeamGet$Json(),
         this.projectService.apiProjectGet$Json(),
+        this.workScheduleService.apiWorkScheduleManagedGet$Json(),
+        this.timeEntryService.apiTimeEntryMineGet$Json(),
+        this.workScheduleService.apiWorkScheduleMineGet$Json(),
       ]);
       this.managedUsers.set(managedUsers);
       this.entries.set(entries);
       this.projects.set(projects);
+      this.workSchedules.set(workSchedules);
+      this.myEntries.set(myEntries);
+      this.mySchedule.set(mySchedule);
+
+      if (managedUsers.length > 0) {
+        this.selectedUserId.set(String(managedUsers[0].id));
+      }
     } catch {
       this.error.set('Auswertungen konnten nicht geladen werden.');
     } finally {

@@ -48,3 +48,4 @@ export type { TimeEntryUpdateRequest } from './models/time-entry-update-request'
 export type { User } from './models/user';
 export type { UserInvitation } from './models/user-invitation';
 export type { WorkSchedule } from './models/work-schedule';
+export type { WorkScheduleUpsertRequest } from './models/work-schedule-upsert-request';

@@ -9,11 +9,11 @@ import { RequestBuilder } from '../../request-builder';
 
 import { WorkSchedule } from '../../models/work-schedule';
 
-export interface ApiWorkScheduleGet$Plain$Params {
+export interface ApiWorkScheduleManagedGet$Plain$Params {
 }
 
-export function apiWorkScheduleGet$Plain(http: HttpClient, rootUrl: string, params?: ApiWorkScheduleGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<WorkSchedule>>> {
-  const rb = new RequestBuilder(rootUrl, apiWorkScheduleGet$Plain.PATH, 'get');
+export function apiWorkScheduleManagedGet$Plain(http: HttpClient, rootUrl: string, params?: ApiWorkScheduleManagedGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<WorkSchedule>>> {
+  const rb = new RequestBuilder(rootUrl, apiWorkScheduleManagedGet$Plain.PATH, 'get');
   if (params) {
   }
 
@@ -27,4 +27,4 @@ export function apiWorkScheduleGet$Plain(http: HttpClient, rootUrl: string, para
   );
 }
 
-apiWorkScheduleGet$Plain.PATH = '/api/WorkSchedule';
+apiWorkScheduleManagedGet$Plain.PATH = '/api/WorkSchedule/managed';

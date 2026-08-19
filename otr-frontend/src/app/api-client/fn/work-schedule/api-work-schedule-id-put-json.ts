@@ -10,18 +10,20 @@ import { RequestBuilder } from '../../request-builder';
 import { WorkSchedule } from '../../models/work-schedule';
 import { WorkScheduleUpsertRequest } from '../../models/work-schedule-upsert-request';
 
-export interface ApiWorkSchedulePost$Plain$Params {
+export interface ApiWorkScheduleIdPut$Json$Params {
+  id: (number | string);
       body: WorkScheduleUpsertRequest
 }
 
-export function apiWorkSchedulePost$Plain(http: HttpClient, rootUrl: string, params: ApiWorkSchedulePost$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<WorkSchedule>> {
-  const rb = new RequestBuilder(rootUrl, apiWorkSchedulePost$Plain.PATH, 'post');
+export function apiWorkScheduleIdPut$Json(http: HttpClient, rootUrl: string, params: ApiWorkScheduleIdPut$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<WorkSchedule>> {
+  const rb = new RequestBuilder(rootUrl, apiWorkScheduleIdPut$Json.PATH, 'put');
   if (params) {
+    rb.path('id', params.id, {});
     rb.body(params.body, 'application/*+json');
   }
 
   return http.request(
-    rb.build({ responseType: 'text', accept: 'text/plain', context })
+    rb.build({ responseType: 'json', accept: 'text/json', context })
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
@@ -30,4 +32,4 @@ export function apiWorkSchedulePost$Plain(http: HttpClient, rootUrl: string, par
   );
 }
 
-apiWorkSchedulePost$Plain.PATH = '/api/WorkSchedule';
+apiWorkScheduleIdPut$Json.PATH = '/api/WorkSchedule/{id}';

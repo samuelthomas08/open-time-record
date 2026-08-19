@@ -9,14 +9,12 @@ import { RequestBuilder } from '../../request-builder';
 
 import { WorkSchedule } from '../../models/work-schedule';
 
-export interface ApiWorkScheduleIdGet$Json$Params {
-  id: (number | string);
+export interface ApiWorkScheduleManagedGet$Json$Params {
 }
 
-export function apiWorkScheduleIdGet$Json(http: HttpClient, rootUrl: string, params: ApiWorkScheduleIdGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<WorkSchedule>> {
-  const rb = new RequestBuilder(rootUrl, apiWorkScheduleIdGet$Json.PATH, 'get');
+export function apiWorkScheduleManagedGet$Json(http: HttpClient, rootUrl: string, params?: ApiWorkScheduleManagedGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<WorkSchedule>>> {
+  const rb = new RequestBuilder(rootUrl, apiWorkScheduleManagedGet$Json.PATH, 'get');
   if (params) {
-    rb.path('id', params.id, {});
   }
 
   return http.request(
@@ -24,9 +22,9 @@ export function apiWorkScheduleIdGet$Json(http: HttpClient, rootUrl: string, par
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<WorkSchedule>;
+      return r as StrictHttpResponse<Array<WorkSchedule>>;
     })
   );
 }
 
-apiWorkScheduleIdGet$Json.PATH = '/api/WorkSchedule/{id}';
+apiWorkScheduleManagedGet$Json.PATH = '/api/WorkSchedule/managed';

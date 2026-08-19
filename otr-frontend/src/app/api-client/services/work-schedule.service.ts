@@ -9,14 +9,20 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
-import { apiWorkScheduleGet$Json } from '../fn/work-schedule/api-work-schedule-get-json';
-import { ApiWorkScheduleGet$Json$Params } from '../fn/work-schedule/api-work-schedule-get-json';
-import { apiWorkScheduleGet$Plain } from '../fn/work-schedule/api-work-schedule-get-plain';
-import { ApiWorkScheduleGet$Plain$Params } from '../fn/work-schedule/api-work-schedule-get-plain';
-import { apiWorkScheduleIdGet$Json } from '../fn/work-schedule/api-work-schedule-id-get-json';
-import { ApiWorkScheduleIdGet$Json$Params } from '../fn/work-schedule/api-work-schedule-id-get-json';
-import { apiWorkScheduleIdGet$Plain } from '../fn/work-schedule/api-work-schedule-id-get-plain';
-import { ApiWorkScheduleIdGet$Plain$Params } from '../fn/work-schedule/api-work-schedule-id-get-plain';
+import { apiWorkScheduleIdDelete } from '../fn/work-schedule/api-work-schedule-id-delete';
+import { ApiWorkScheduleIdDelete$Params } from '../fn/work-schedule/api-work-schedule-id-delete';
+import { apiWorkScheduleIdPut$Json } from '../fn/work-schedule/api-work-schedule-id-put-json';
+import { ApiWorkScheduleIdPut$Json$Params } from '../fn/work-schedule/api-work-schedule-id-put-json';
+import { apiWorkScheduleIdPut$Plain } from '../fn/work-schedule/api-work-schedule-id-put-plain';
+import { ApiWorkScheduleIdPut$Plain$Params } from '../fn/work-schedule/api-work-schedule-id-put-plain';
+import { apiWorkScheduleManagedGet$Json } from '../fn/work-schedule/api-work-schedule-managed-get-json';
+import { ApiWorkScheduleManagedGet$Json$Params } from '../fn/work-schedule/api-work-schedule-managed-get-json';
+import { apiWorkScheduleManagedGet$Plain } from '../fn/work-schedule/api-work-schedule-managed-get-plain';
+import { ApiWorkScheduleManagedGet$Plain$Params } from '../fn/work-schedule/api-work-schedule-managed-get-plain';
+import { apiWorkScheduleMineGet$Json } from '../fn/work-schedule/api-work-schedule-mine-get-json';
+import { ApiWorkScheduleMineGet$Json$Params } from '../fn/work-schedule/api-work-schedule-mine-get-json';
+import { apiWorkScheduleMineGet$Plain } from '../fn/work-schedule/api-work-schedule-mine-get-plain';
+import { ApiWorkScheduleMineGet$Plain$Params } from '../fn/work-schedule/api-work-schedule-mine-get-plain';
 import { apiWorkSchedulePost$Json } from '../fn/work-schedule/api-work-schedule-post-json';
 import { ApiWorkSchedulePost$Json$Params } from '../fn/work-schedule/api-work-schedule-post-json';
 import { apiWorkSchedulePost$Plain } from '../fn/work-schedule/api-work-schedule-post-plain';
@@ -29,50 +35,97 @@ export class WorkScheduleService extends BaseService {
     super(config, http);
   }
 
-  /** Path part for operation `apiWorkScheduleGet()` */
-  static readonly ApiWorkScheduleGetPath = '/api/WorkSchedule';
+  /** Path part for operation `apiWorkScheduleManagedGet()` */
+  static readonly ApiWorkScheduleManagedGetPath = '/api/WorkSchedule/managed';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiWorkScheduleGet$Plain()` instead.
+   * To access only the response body, use `apiWorkScheduleManagedGet$Plain()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiWorkScheduleGet$Plain$Response(params?: ApiWorkScheduleGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<WorkSchedule>>> {
-    const obs = apiWorkScheduleGet$Plain(this.http, this.rootUrl, params, context);
+  apiWorkScheduleManagedGet$Plain$Response(params?: ApiWorkScheduleManagedGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<WorkSchedule>>> {
+    const obs = apiWorkScheduleManagedGet$Plain(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `apiWorkScheduleGet$Plain$Response()` instead.
+   * To access the full response (for headers, for example), `apiWorkScheduleManagedGet$Plain$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiWorkScheduleGet$Plain(params?: ApiWorkScheduleGet$Plain$Params, context?: HttpContext): Promise<Array<WorkSchedule>> {
-    const resp = this.apiWorkScheduleGet$Plain$Response(params, context);
+  apiWorkScheduleManagedGet$Plain(params?: ApiWorkScheduleManagedGet$Plain$Params, context?: HttpContext): Promise<Array<WorkSchedule>> {
+    const resp = this.apiWorkScheduleManagedGet$Plain$Response(params, context);
     return resp.then((r: StrictHttpResponse<Array<WorkSchedule>>): Array<WorkSchedule> => r.body);
   }
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiWorkScheduleGet$Json()` instead.
+   * To access only the response body, use `apiWorkScheduleManagedGet$Json()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiWorkScheduleGet$Json$Response(params?: ApiWorkScheduleGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<WorkSchedule>>> {
-    const obs = apiWorkScheduleGet$Json(this.http, this.rootUrl, params, context);
+  apiWorkScheduleManagedGet$Json$Response(params?: ApiWorkScheduleManagedGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<WorkSchedule>>> {
+    const obs = apiWorkScheduleManagedGet$Json(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `apiWorkScheduleGet$Json$Response()` instead.
+   * To access the full response (for headers, for example), `apiWorkScheduleManagedGet$Json$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiWorkScheduleGet$Json(params?: ApiWorkScheduleGet$Json$Params, context?: HttpContext): Promise<Array<WorkSchedule>> {
-    const resp = this.apiWorkScheduleGet$Json$Response(params, context);
+  apiWorkScheduleManagedGet$Json(params?: ApiWorkScheduleManagedGet$Json$Params, context?: HttpContext): Promise<Array<WorkSchedule>> {
+    const resp = this.apiWorkScheduleManagedGet$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<WorkSchedule>>): Array<WorkSchedule> => r.body);
+  }
+
+  /** Path part for operation `apiWorkScheduleMineGet()` */
+  static readonly ApiWorkScheduleMineGetPath = '/api/WorkSchedule/mine';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiWorkScheduleMineGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiWorkScheduleMineGet$Plain$Response(params?: ApiWorkScheduleMineGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<WorkSchedule>>> {
+    const obs = apiWorkScheduleMineGet$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiWorkScheduleMineGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiWorkScheduleMineGet$Plain(params?: ApiWorkScheduleMineGet$Plain$Params, context?: HttpContext): Promise<Array<WorkSchedule>> {
+    const resp = this.apiWorkScheduleMineGet$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<Array<WorkSchedule>>): Array<WorkSchedule> => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiWorkScheduleMineGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiWorkScheduleMineGet$Json$Response(params?: ApiWorkScheduleMineGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<WorkSchedule>>> {
+    const obs = apiWorkScheduleMineGet$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiWorkScheduleMineGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiWorkScheduleMineGet$Json(params?: ApiWorkScheduleMineGet$Json$Params, context?: HttpContext): Promise<Array<WorkSchedule>> {
+    const resp = this.apiWorkScheduleMineGet$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<Array<WorkSchedule>>): Array<WorkSchedule> => r.body);
   }
 
@@ -123,51 +176,76 @@ export class WorkScheduleService extends BaseService {
     return resp.then((r: StrictHttpResponse<WorkSchedule>): WorkSchedule => r.body);
   }
 
-  /** Path part for operation `apiWorkScheduleIdGet()` */
-  static readonly ApiWorkScheduleIdGetPath = '/api/WorkSchedule/{id}';
+  /** Path part for operation `apiWorkScheduleIdPut()` */
+  static readonly ApiWorkScheduleIdPutPath = '/api/WorkSchedule/{id}';
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiWorkScheduleIdGet$Plain()` instead.
+   * To access only the response body, use `apiWorkScheduleIdPut$Plain()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
-  apiWorkScheduleIdGet$Plain$Response(params: ApiWorkScheduleIdGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<WorkSchedule>> {
-    const obs = apiWorkScheduleIdGet$Plain(this.http, this.rootUrl, params, context);
+  apiWorkScheduleIdPut$Plain$Response(params: ApiWorkScheduleIdPut$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<WorkSchedule>> {
+    const obs = apiWorkScheduleIdPut$Plain(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `apiWorkScheduleIdGet$Plain$Response()` instead.
+   * To access the full response (for headers, for example), `apiWorkScheduleIdPut$Plain$Response()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
-  apiWorkScheduleIdGet$Plain(params: ApiWorkScheduleIdGet$Plain$Params, context?: HttpContext): Promise<WorkSchedule> {
-    const resp = this.apiWorkScheduleIdGet$Plain$Response(params, context);
+  apiWorkScheduleIdPut$Plain(params: ApiWorkScheduleIdPut$Plain$Params, context?: HttpContext): Promise<WorkSchedule> {
+    const resp = this.apiWorkScheduleIdPut$Plain$Response(params, context);
     return resp.then((r: StrictHttpResponse<WorkSchedule>): WorkSchedule => r.body);
   }
 
   /**
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiWorkScheduleIdGet$Json()` instead.
+   * To access only the response body, use `apiWorkScheduleIdPut$Json()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
-  apiWorkScheduleIdGet$Json$Response(params: ApiWorkScheduleIdGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<WorkSchedule>> {
-    const obs = apiWorkScheduleIdGet$Json(this.http, this.rootUrl, params, context);
+  apiWorkScheduleIdPut$Json$Response(params: ApiWorkScheduleIdPut$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<WorkSchedule>> {
+    const obs = apiWorkScheduleIdPut$Json(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
 
   /**
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `apiWorkScheduleIdGet$Json$Response()` instead.
+   * To access the full response (for headers, for example), `apiWorkScheduleIdPut$Json$Response()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiWorkScheduleIdPut$Json(params: ApiWorkScheduleIdPut$Json$Params, context?: HttpContext): Promise<WorkSchedule> {
+    const resp = this.apiWorkScheduleIdPut$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<WorkSchedule>): WorkSchedule => r.body);
+  }
+
+  /** Path part for operation `apiWorkScheduleIdDelete()` */
+  static readonly ApiWorkScheduleIdDeletePath = '/api/WorkSchedule/{id}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiWorkScheduleIdDelete()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiWorkScheduleIdGet$Json(params: ApiWorkScheduleIdGet$Json$Params, context?: HttpContext): Promise<WorkSchedule> {
-    const resp = this.apiWorkScheduleIdGet$Json$Response(params, context);
-    return resp.then((r: StrictHttpResponse<WorkSchedule>): WorkSchedule => r.body);
+  apiWorkScheduleIdDelete$Response(params: ApiWorkScheduleIdDelete$Params, context?: HttpContext): Promise<StrictHttpResponse<void>> {
+    const obs = apiWorkScheduleIdDelete(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiWorkScheduleIdDelete$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiWorkScheduleIdDelete(params: ApiWorkScheduleIdDelete$Params, context?: HttpContext): Promise<void> {
+    const resp = this.apiWorkScheduleIdDelete$Response(params, context);
+    return resp.then((r: StrictHttpResponse<void>): void => r.body);
   }
 
 }

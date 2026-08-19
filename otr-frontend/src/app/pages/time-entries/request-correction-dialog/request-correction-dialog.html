@@ -1,5 +1,5 @@
 <form class="flex flex-col gap-4" (ngSubmit)="submit()">
-  <div z-field>
+  <z-field>
     <label z-field-label>Vorgesetzter</label>
     <p class="text-sm text-muted-foreground">
       @if (loadingManagers()) {
@@ -10,9 +10,9 @@
         Kein Vorgesetzter zugewiesen
       }
     </p>
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="proposedStartDate">Neuer Start</label>
     <div class="flex items-center gap-2">
       <z-date-picker
@@ -24,9 +24,9 @@
       />
       <input z-input type="time" name="proposedStartTimeOfDay" class="w-28" [(ngModel)]="proposedStartTimeOfDay" />
     </div>
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="proposedEndDate">Neues Ende</label>
     <div class="flex items-center gap-2">
       <z-date-picker
@@ -38,9 +38,9 @@
       />
       <input z-input type="time" name="proposedEndTimeOfDay" class="w-28" [(ngModel)]="proposedEndTimeOfDay" />
     </div>
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="reason">Grund</label>
     <input
       z-input
@@ -52,7 +52,7 @@
       class="w-64"
       [(ngModel)]="reason"
     />
-  </div>
+  </z-field>
 
   @if (error()) {
     <p class="text-sm text-destructive">{{ error() }}</p>

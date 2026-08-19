@@ -1,8 +1,7 @@
-namespace otr_backend.Models;
+namespace otr_backend.Dtos;
 
-public class WorkSchedule
+public class WorkScheduleUpsertRequest
 {
-    public uint Id { get; set; }
     public uint UserId { get; set; }
     public decimal MondayHours { get; set; }
     public decimal TuesdayHours { get; set; }
@@ -13,6 +12,4 @@ public class WorkSchedule
     public decimal SundayHours { get; set; }
     public DateTime EffectiveFrom { get; set; }
     public DateTime? EffectiveTo { get; set; }
-
-    public User User { get; set; } = null!;
 }

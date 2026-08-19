@@ -1,17 +1,17 @@
 <form class="flex flex-col gap-4" (ngSubmit)="submit()">
   <div class="flex gap-3">
-    <div z-field>
+    <z-field>
       <label z-field-label for="createUserFirstName">Vorname</label>
       <input z-input id="createUserFirstName" type="text" name="createUserFirstName" required class="w-36" [(ngModel)]="firstName" />
-    </div>
+    </z-field>
 
-    <div z-field>
+    <z-field>
       <label z-field-label for="createUserLastName">Nachname</label>
       <input z-input id="createUserLastName" type="text" name="createUserLastName" required class="w-36" [(ngModel)]="lastName" />
-    </div>
+    </z-field>
   </div>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="createUserEmail">E-Mail-Adresse</label>
     <input
       z-input
@@ -23,9 +23,9 @@
       class="w-64"
       [(ngModel)]="email"
     />
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="createUserPassword">Passwort</label>
     <input
       z-input
@@ -37,9 +37,9 @@
       class="w-56"
       [(ngModel)]="password"
     />
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="createUserRole">Rolle</label>
     <z-select
       id="createUserRole"
@@ -52,9 +52,9 @@
         <z-select-item [zValue]="role.id + ''">{{ role.roleDisplayName }}</z-select-item>
       }
     </z-select>
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="createUserTeam">Team (optional)</label>
     <z-select
       id="createUserTeam"
@@ -69,9 +69,9 @@
         <z-select-item [zValue]="team.id + ''">{{ team.teamDisplayName }}</z-select-item>
       }
     </z-select>
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="createUserManager">Vorgesetzter (optional)</label>
     <z-select
       id="createUserManager"
@@ -86,7 +86,7 @@
       }
     </z-select>
     <p class="text-sm text-muted-foreground">Wird beim Wählen eines Teams automatisch vorgeschlagen.</p>
-  </div>
+  </z-field>
 
   @if (error()) {
     <p class="text-sm text-destructive">{{ error() }}</p>

@@ -1,10 +1,10 @@
 <form class="flex flex-col gap-4" (ngSubmit)="submit()">
-  <div z-field>
+  <z-field>
     <label z-field-label for="projectName">Kurzname</label>
     <input z-input id="projectName" type="text" name="projectName" required placeholder="otr-internal" class="w-48" [(ngModel)]="projectName" />
-  </div>
+  </z-field>
 
-  <div z-field>
+  <z-field>
     <label z-field-label for="projectDisplayName">Anzeigename</label>
     <input
       z-input
@@ -16,7 +16,7 @@
       class="w-64"
       [(ngModel)]="projectDisplayName"
     />
-  </div>
+  </z-field>
 
   @if (error()) {
     <p class="text-sm text-destructive">{{ error() }}</p>

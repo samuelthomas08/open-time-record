@@ -8,9 +8,10 @@ import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
 import { WorkSchedule } from '../../models/work-schedule';
+import { WorkScheduleUpsertRequest } from '../../models/work-schedule-upsert-request';
 
 export interface ApiWorkSchedulePost$Json$Params {
-      body: WorkSchedule
+      body: WorkScheduleUpsertRequest
 }
 
 export function apiWorkSchedulePost$Json(http: HttpClient, rootUrl: string, params: ApiWorkSchedulePost$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<WorkSchedule>> {

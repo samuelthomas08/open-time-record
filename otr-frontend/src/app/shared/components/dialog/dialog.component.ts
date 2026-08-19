@@ -201,7 +201,9 @@ export class ZardDialogComponent<T, U> extends BasePortalOutlet {
   protected readonly config = inject(ZardDialogOptions<T, U>);
   private readonly idRef = viewChild.required<ZardIdDirective>('idRef');
 
-  protected readonly classes = computed(() => mergeClasses(dialogVariants(), this.config.zCustomClasses));
+  protected readonly classes = computed(() =>
+    mergeClasses(dialogVariants(), this.config.zWidth ? 'sm:max-w-none' : undefined, this.config.zCustomClasses),
+  );
   protected readonly headerClasses = computed(() => dialogHeaderVariants());
   protected readonly titleClasses = computed(() => dialogTitleVariants());
   protected readonly descriptionClasses = computed(() => dialogDescriptionVariants());

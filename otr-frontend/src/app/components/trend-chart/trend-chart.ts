@@ -9,10 +9,12 @@ Chart.register(...registerables);
 export interface TrendPoint {
   label: string;
   value: number;
+  targetValue: number;
   title: string;
 }
 
 const GREEN = '#00a63e';
+const BLUE = '#155dfc';
 
 @Component({
   selector: 'app-trend-chart',
@@ -61,6 +63,7 @@ export class TrendChart implements OnDestroy {
         labels: points.map(p => p.label),
         datasets: [
           {
+            label: 'Ist',
             data: points.map(p => p.value),
             borderColor: GREEN,
             backgroundColor: dark ? 'rgba(0,166,62,0.15)' : 'rgba(0,166,62,0.1)',
@@ -71,6 +74,19 @@ export class TrendChart implements OnDestroy {
             pointBackgroundColor: GREEN,
             borderWidth: 2,
           },
+          {
+            label: 'Soll',
+            data: points.map(p => p.targetValue),
+            borderColor: BLUE,
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0.25,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointBackgroundColor: BLUE,
+            borderWidth: 2,
+            borderDash: [6, 4],
+          },
         ],
       },
       options: {
@@ -78,10 +94,15 @@ export class TrendChart implements OnDestroy {
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: { color: textColor, boxWidth: 12, boxHeight: 2, usePointStyle: false },
+          },
           tooltip: {
             callbacks: {
-              label: ctx => formatter(ctx.parsed.y ?? 0),
+              label: ctx => `${ctx.dataset.label}: ${formatter(ctx.parsed.y ?? 0)}`,
             },
           },
         },

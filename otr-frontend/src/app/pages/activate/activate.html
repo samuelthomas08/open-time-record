@@ -5,12 +5,12 @@
   </p>
 
   <form class="mt-6 flex flex-col gap-4" (ngSubmit)="onSubmit()">
-    <div z-field>
+    <z-field>
       <label z-field-label for="email">E-Mail</label>
       <input z-input id="email" type="email" name="email" required class="w-64" [(ngModel)]="email" />
-    </div>
+    </z-field>
 
-    <div z-field>
+    <z-field>
       <label z-field-label for="code">Bestätigungscode</label>
       <input
         z-input
@@ -22,7 +22,7 @@
         class="w-36 tracking-widest"
         [(ngModel)]="code"
       />
-    </div>
+    </z-field>
 
     @if (error()) {
       <p class="text-sm text-destructive">{{ error() }}</p>
