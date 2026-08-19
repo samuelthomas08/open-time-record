@@ -1,10 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideMessageSquareText } from '@ng-icons/lucide';
+
 import { CorrectionRequestDto, TimeEntryCorrectionRequestService } from '@/api-client';
 import { AuthService } from '@/services/auth.service';
+import { RejectCorrectionDialog } from '@/pages/correction-requests/reject-correction-dialog/reject-correction-dialog';
 import { ZardBadgeComponent } from '@/shared/components/badge';
 import { ZardButtonComponent } from '@/shared/components/button';
+import { ZardDialogService } from '@/shared/components/dialog';
+import { ZardPopoverImports } from '@/shared/components/popover';
 import { ZardTableImports } from '@/shared/components/table';
 
 const PENDING = 0;
@@ -13,11 +19,13 @@ const REJECTED = 2;
 
 @Component({
   selector: 'app-correction-requests',
-  imports: [DatePipe, ZardBadgeComponent, ZardButtonComponent, ZardTableImports],
+  imports: [DatePipe, NgIcon, ZardBadgeComponent, ZardButtonComponent, ZardPopoverImports, ZardTableImports],
   templateUrl: './correction-requests.html',
+  viewProviders: [provideIcons({ lucideMessageSquareText })],
 })
 export class CorrectionRequests implements OnInit {
   private readonly correctionRequestService = inject(TimeEntryCorrectionRequestService);
+  private readonly dialogService = inject(ZardDialogService);
 
   protected readonly authService = inject(AuthService);
   protected readonly PENDING = PENDING;
@@ -46,12 +54,20 @@ export class CorrectionRequests implements OnInit {
     );
   }
 
-  protected reject(request: CorrectionRequestDto): Promise<void> {
-    return this.review(() =>
-      this.correctionRequestService.apiTimeEntryCorrectionRequestIdRejectPut$Json({
-        id: request.id!,
-      }),
-    );
+  protected reject(request: CorrectionRequestDto): void {
+    this.dialogService.create({
+      zTitle: 'Antrag ablehnen',
+      zContent: RejectCorrectionDialog,
+      zHideFooter: true,
+      zWidth: '28rem',
+      zData: {
+        request,
+        onSuccess: () => {
+          this.loadPending();
+          this.loadMine();
+        },
+      },
+    });
   }
 
   private async review(action: () => Promise<unknown>): Promise<void> {

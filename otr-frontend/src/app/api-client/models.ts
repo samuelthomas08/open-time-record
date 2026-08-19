@@ -30,6 +30,7 @@ export type { PublicHoliday } from './models/public-holiday';
 export type { RegisterRequest } from './models/register-request';
 export type { RegisterResponse } from './models/register-response';
 export type { ResendActivationRequest } from './models/resend-activation-request';
+export type { ReviewNoteRequest } from './models/review-note-request';
 export type { Role } from './models/role';
 export type { RolePermissionDto } from './models/role-permission-dto';
 export type { Rule } from './models/rule';

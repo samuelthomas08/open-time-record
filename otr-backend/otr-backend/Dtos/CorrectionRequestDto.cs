@@ -15,4 +15,5 @@ public class CorrectionRequestDto
     public DateTime? ProposedEndTime { get; set; }
     public ApprovalStatus Status { get; set; }
     public DateTime RequestedAt { get; set; }
+    public string? ReviewNote { get; set; }
 }

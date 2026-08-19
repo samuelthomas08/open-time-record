@@ -67,6 +67,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
             ProposedEndTime = r.ProposedEndTime,
             Status = r.Status,
             RequestedAt = r.RequestedAt,
+            ReviewNote = r.ReviewNote,
         };
 
     [HttpGet("{id}")]
@@ -123,17 +124,17 @@ public class TimeEntryCorrectionRequestController : ControllerBase
     [HttpPut("{id}/approve")]
     public Task<ActionResult<TimeEntryCorrectionRequest>> Approve(uint id)
     {
-        return Review(id, ApprovalStatus.Approved, applyToTimeEntry: true);
+        return Review(id, ApprovalStatus.Approved, applyToTimeEntry: true, note: null);
     }
 
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}/reject")]
-    public Task<ActionResult<TimeEntryCorrectionRequest>> Reject(uint id)
+    public Task<ActionResult<TimeEntryCorrectionRequest>> Reject(uint id, ReviewNoteRequest body)
     {
-        return Review(id, ApprovalStatus.Rejected, applyToTimeEntry: false);
+        return Review(id, ApprovalStatus.Rejected, applyToTimeEntry: false, note: body.Note);
     }
 
-    private async Task<ActionResult<TimeEntryCorrectionRequest>> Review(uint id, ApprovalStatus status, bool applyToTimeEntry)
+    private async Task<ActionResult<TimeEntryCorrectionRequest>> Review(uint id, ApprovalStatus status, bool applyToTimeEntry, string? note)
     {
         TimeEntryCorrectionRequest? request = await _context.TimeEntryCorrectionRequests
             .Include(r => r.TimeEntry)
@@ -151,6 +152,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
         request.Status = status;
         request.ReviewedByUserId = User.GetUserId();
         request.ReviewedAt = DateTime.UtcNow;
+        request.ReviewNote = string.IsNullOrWhiteSpace(note) ? null : note;
 
         if (applyToTimeEntry)
         {

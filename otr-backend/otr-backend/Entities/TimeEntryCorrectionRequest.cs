@@ -10,6 +10,7 @@ public class TimeEntryCorrectionRequest
     public uint? ReviewedByUserId { get; set; }
     public ApprovalStatus Status { get; set; }
     public string Reason { get; set; }
+    public string? ReviewNote { get; set; }
     public DateTime? ProposedStartTime { get; set; }
     public DateTime? ProposedEndTime { get; set; }
     public DateTime RequestedAt { get; set; }

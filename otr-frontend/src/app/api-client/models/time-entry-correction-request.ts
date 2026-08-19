@@ -12,6 +12,7 @@ export interface TimeEntryCorrectionRequest {
   requestedAt?: string;
   requestedByUser?: User;
   requestedByUserId?: (number | string);
+  reviewNote?: (string | null);
   reviewedAt?: (string | null);
   reviewedByUser?: (null | User);
   reviewedByUserId?: (number | string | null);

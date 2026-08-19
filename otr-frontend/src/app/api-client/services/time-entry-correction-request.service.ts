@@ -335,7 +335,7 @@ export class TimeEntryCorrectionRequestService extends BaseService {
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `apiTimeEntryCorrectionRequestIdRejectPut$Plain()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiTimeEntryCorrectionRequestIdRejectPut$Plain$Response(params: ApiTimeEntryCorrectionRequestIdRejectPut$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<TimeEntryCorrectionRequest>> {
     const obs = apiTimeEntryCorrectionRequestIdRejectPut$Plain(this.http, this.rootUrl, params, context);
@@ -346,7 +346,7 @@ export class TimeEntryCorrectionRequestService extends BaseService {
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `apiTimeEntryCorrectionRequestIdRejectPut$Plain$Response()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiTimeEntryCorrectionRequestIdRejectPut$Plain(params: ApiTimeEntryCorrectionRequestIdRejectPut$Plain$Params, context?: HttpContext): Promise<TimeEntryCorrectionRequest> {
     const resp = this.apiTimeEntryCorrectionRequestIdRejectPut$Plain$Response(params, context);
@@ -357,7 +357,7 @@ export class TimeEntryCorrectionRequestService extends BaseService {
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
    * To access only the response body, use `apiTimeEntryCorrectionRequestIdRejectPut$Json()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiTimeEntryCorrectionRequestIdRejectPut$Json$Response(params: ApiTimeEntryCorrectionRequestIdRejectPut$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<TimeEntryCorrectionRequest>> {
     const obs = apiTimeEntryCorrectionRequestIdRejectPut$Json(this.http, this.rootUrl, params, context);
@@ -368,7 +368,7 @@ export class TimeEntryCorrectionRequestService extends BaseService {
    * This method provides access only to the response body.
    * To access the full response (for headers, for example), `apiTimeEntryCorrectionRequestIdRejectPut$Json$Response()` instead.
    *
-   * This method doesn't expect any request body.
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
    */
   apiTimeEntryCorrectionRequestIdRejectPut$Json(params: ApiTimeEntryCorrectionRequestIdRejectPut$Json$Params, context?: HttpContext): Promise<TimeEntryCorrectionRequest> {
     const resp = this.apiTimeEntryCorrectionRequestIdRejectPut$Json$Response(params, context);

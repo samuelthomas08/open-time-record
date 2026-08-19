@@ -40,7 +40,28 @@
                 } @else if (request.status === APPROVED) {
                   <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Genehmigt</z-badge>
                 } @else {
-                  <z-badge zType="destructive">Abgelehnt</z-badge>
+                  <span class="inline-flex items-center gap-1">
+                    <z-badge zType="destructive">Abgelehnt</z-badge>
+                    @if (request.reviewNote) {
+                      <button
+                        z-button
+                        zType="ghost"
+                        zSize="icon-xs"
+                        type="button"
+                        zPopover
+                        [zContent]="reviewNoteTpl"
+                        zPlacement="top"
+                        aria-label="Ablehnungsgrund anzeigen"
+                      >
+                        <ng-icon name="lucideMessageSquareText" size="14" />
+                      </button>
+                      <ng-template #reviewNoteTpl>
+                        <div z-popover>
+                          <p z-popover-description>{{ request.reviewNote }}</p>
+                        </div>
+                      </ng-template>
+                    }
+                  </span>
                 }
               </td>
             </tr>

@@ -7,16 +7,19 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
+import { ReviewNoteRequest } from '../../models/review-note-request';
 import { TimeEntryCorrectionRequest } from '../../models/time-entry-correction-request';
 
 export interface ApiTimeEntryCorrectionRequestIdRejectPut$Json$Params {
   id: (number | string);
+      body: ReviewNoteRequest
 }
 
 export function apiTimeEntryCorrectionRequestIdRejectPut$Json(http: HttpClient, rootUrl: string, params: ApiTimeEntryCorrectionRequestIdRejectPut$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<TimeEntryCorrectionRequest>> {
   const rb = new RequestBuilder(rootUrl, apiTimeEntryCorrectionRequestIdRejectPut$Json.PATH, 'put');
   if (params) {
     rb.path('id', params.id, {});
+    rb.body(params.body, 'application/*+json');
   }
 
   return http.request(
