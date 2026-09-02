@@ -68,6 +68,10 @@ public class TimeEntryCorrectionRequestController : ControllerBase
             Status = r.Status,
             RequestedAt = r.RequestedAt,
             ReviewNote = r.ReviewNote,
+            ReviewedByUserId = r.ReviewedByUserId,
+            ReviewedByUserName = r.ReviewedByUser != null ? r.ReviewedByUser.FirstName + " " + r.ReviewedByUser.LastName : null,
+            ReviewedByUserEmail = r.ReviewedByUser != null ? r.ReviewedByUser.Email : null,
+            ReviewedByProfilePictureUrl = r.ReviewedByUser != null ? r.ReviewedByUser.ProfilePictureUrl : null,
         };
 
     [HttpGet("{id}")]

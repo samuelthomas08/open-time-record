@@ -11,6 +11,10 @@ export interface CorrectionRequestDto {
   requestedByUserId?: (number | string);
   requestedByUserName?: string;
   reviewNote?: (string | null);
+  reviewedByProfilePictureUrl?: (string | null);
+  reviewedByUserEmail?: (string | null);
+  reviewedByUserId?: (number | string | null);
+  reviewedByUserName?: (string | null);
   status?: ApprovalStatus;
   timeEntryEndTime?: (string | null);
   timeEntryId?: (number | string);

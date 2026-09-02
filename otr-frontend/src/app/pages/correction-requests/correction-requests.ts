@@ -4,7 +4,7 @@ import { DatePipe } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideMessageSquareText } from '@ng-icons/lucide';
 
-import { CorrectionRequestDto, TimeEntryCorrectionRequestService } from '@/api-client';
+import { ApiConfiguration, AppSettingsService, CorrectionRequestDto, TimeEntryCorrectionRequestService } from '@/api-client';
 import { AuthService } from '@/services/auth.service';
 import { RejectCorrectionDialog } from '@/pages/correction-requests/reject-correction-dialog/reject-correction-dialog';
 import { ZardBadgeComponent } from '@/shared/components/badge';
@@ -26,6 +26,8 @@ const REJECTED = 2;
 export class CorrectionRequests implements OnInit {
   private readonly correctionRequestService = inject(TimeEntryCorrectionRequestService);
   private readonly dialogService = inject(ZardDialogService);
+  private readonly appSettingsService = inject(AppSettingsService);
+  private readonly apiConfiguration = inject(ApiConfiguration);
 
   protected readonly authService = inject(AuthService);
   protected readonly PENDING = PENDING;
@@ -37,13 +39,20 @@ export class CorrectionRequests implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly actionPending = signal(false);
+  protected readonly profilePicturesEnabled = signal(false);
 
   ngOnInit(): void {
     this.loadMine();
+    this.loadSettings();
 
     if (this.authService.isSuperadmin()) {
       this.loadPending();
     }
+  }
+
+  protected reviewerPictureSrc(request: CorrectionRequestDto): string | null {
+    const url = request.reviewedByProfilePictureUrl;
+    return url ? `${this.apiConfiguration.rootUrl}${url}` : null;
   }
 
   protected approve(request: CorrectionRequestDto): Promise<void> {
@@ -105,6 +114,15 @@ export class CorrectionRequests implements OnInit {
       );
     } catch {
       this.error.set('Offene Anträge konnten nicht geladen werden.');
+    }
+  }
+
+  private async loadSettings(): Promise<void> {
+    try {
+      const settings = await this.appSettingsService.apiAppSettingsGet$Json();
+      this.profilePicturesEnabled.set(settings.profilePicturesEnabled ?? false);
+    } catch {
+      this.profilePicturesEnabled.set(false);
     }
   }
 }
