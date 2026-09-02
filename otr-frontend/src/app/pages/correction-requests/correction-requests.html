@@ -40,9 +40,24 @@
                 } @else if (request.status === APPROVED) {
                   <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Genehmigt</z-badge>
                 } @else {
-                  <span class="inline-flex items-center gap-1">
+                  <span class="inline-flex items-center gap-1.5">
                     <z-badge zType="destructive">Abgelehnt</z-badge>
                     @if (request.reviewNote) {
+                      <span
+                        zPopover
+                        zTrigger="hover"
+                        [zContent]="reviewerCardTpl"
+                        zPlacement="top"
+                        class="inline-flex shrink-0 cursor-default items-center"
+                      >
+                        @if (profilePicturesEnabled() && reviewerPictureSrc(request)) {
+                          <span class="flex size-6 items-center justify-center overflow-hidden rounded-full bg-muted">
+                            <img [src]="reviewerPictureSrc(request)" alt="" class="size-full object-cover" />
+                          </span>
+                        } @else {
+                          <span class="text-xs font-medium text-foreground">{{ request.reviewedByUserName }}</span>
+                        }
+                      </span>
                       <button
                         z-button
                         zType="ghost"
@@ -55,9 +70,17 @@
                       >
                         <ng-icon name="lucideMessageSquareText" size="14" />
                       </button>
+                      <ng-template #reviewerCardTpl>
+                        <div z-popover class="w-56">
+                          <p z-popover-title>{{ request.reviewedByUserName }}</p>
+                          <p z-popover-description>{{ request.reviewedByUserEmail }}</p>
+                        </div>
+                      </ng-template>
                       <ng-template #reviewNoteTpl>
-                        <div z-popover>
-                          <p z-popover-description>{{ request.reviewNote }}</p>
+                        <div z-popover class="w-64">
+                          <blockquote class="border-l-2 border-muted-foreground/30 pl-2 text-sm text-muted-foreground italic">
+                            {{ request.reviewNote }}
+                          </blockquote>
                         </div>
                       </ng-template>
                     }

@@ -16,4 +16,8 @@ public class CorrectionRequestDto
     public ApprovalStatus Status { get; set; }
     public DateTime RequestedAt { get; set; }
     public string? ReviewNote { get; set; }
+    public uint? ReviewedByUserId { get; set; }
+    public string? ReviewedByUserName { get; set; }
+    public string? ReviewedByUserEmail { get; set; }
+    public string? ReviewedByProfilePictureUrl { get; set; }
 }
