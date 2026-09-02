@@ -1,0 +1,62 @@
+<div class="p-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-semibold">Teams</h1>
+    <button z-button zType="default" zSize="default" (click)="openCreateDialog()">Team anlegen</button>
+  </div>
+
+  @if (error()) {
+    <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+  }
+
+  @if (!loading() && teams().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
+  @if (loading()) {
+    <p class="mt-6 text-muted-foreground">Lädt…</p>
+  } @else if (teams().length === 0) {
+    <p class="mt-6 text-muted-foreground">Noch keine Teams.</p>
+  } @else if (filteredTeams().length === 0) {
+    <p class="mt-6 text-muted-foreground">Keine Teams gefunden.</p>
+  } @else {
+    <table z-table class="mt-6">
+      <thead z-table-header>
+        <tr z-table-row>
+          <th z-table-head>Name</th>
+          <th z-table-head>Kurzname</th>
+          <th z-table-head>Vorgesetzter</th>
+          <th z-table-head>Status</th>
+          <th z-table-head></th>
+        </tr>
+      </thead>
+      <tbody z-table-body>
+        @for (team of filteredTeams(); track team.id) {
+          <tr z-table-row>
+            <td z-table-cell>{{ team.teamDisplayName }}</td>
+            <td z-table-cell class="font-mono text-xs text-muted-foreground">{{ team.teamName }}</td>
+            <td z-table-cell>{{ managerName(team.managerId) }}</td>
+            <td z-table-cell>
+              @if (team.isActive) {
+                <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Aktiv</z-badge>
+              } @else {
+                <z-badge zType="destructive">Inaktiv</z-badge>
+              }
+            </td>
+            <td z-table-cell class="text-right">
+              <button z-button [zType]="team.isActive ? 'destructive' : 'outline'" zSize="sm" (click)="toggleActive(team)">
+                {{ team.isActive ? 'Deaktivieren' : 'Aktivieren' }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

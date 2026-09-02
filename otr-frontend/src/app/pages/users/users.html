@@ -1,0 +1,176 @@
+<div class="p-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-semibold">Nutzer verwalten</h1>
+
+    @if (authService.isSuperadmin()) {
+      <div class="flex items-center gap-2">
+        <button z-button zType="outline" zSize="default" (click)="openCreateUserDialog()">Nutzer anlegen</button>
+        <button z-button zType="default" zSize="default" (click)="openInviteDialog()">Nutzer einladen</button>
+      </div>
+    }
+  </div>
+
+  @if (authService.isSuperadmin() && invitations().length > 0) {
+    <div class="mt-4 rounded-lg border border-border bg-background p-4">
+      <h2 class="text-sm font-medium">Einladungen</h2>
+
+      <table z-table class="mt-2">
+        <thead z-table-header>
+          <tr z-table-row>
+            <th z-table-head>E-Mail</th>
+            <th z-table-head>Eingeladen am</th>
+            <th z-table-head>Gültig bis</th>
+            <th z-table-head>Status</th>
+            <th z-table-head></th>
+          </tr>
+        </thead>
+        <tbody z-table-body>
+          @for (invitation of invitations(); track invitation.id) {
+            <tr z-table-row>
+              <td z-table-cell>{{ invitation.email }}</td>
+              <td z-table-cell>{{ invitation.createdAt | date: 'short' }}</td>
+              <td z-table-cell>{{ invitation.expiresAt | date: 'short' }}</td>
+              <td z-table-cell><z-badge class="bg-muted text-muted-foreground">Ausstehend</z-badge></td>
+              <td z-table-cell class="text-right">
+                <button z-button zType="ghost" zSize="sm" (click)="archiveInvitation(invitation)">Archivieren</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (!loading() && users().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name oder E-Mail…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
+  @if (loading()) {
+    <p class="mt-4 text-muted-foreground">Lädt…</p>
+  } @else if (error()) {
+    <p class="mt-4 text-destructive">{{ error() }}</p>
+  } @else if (users().length === 0) {
+    <p class="mt-4 text-muted-foreground">Noch keine Nutzer.</p>
+  } @else if (filteredUsers().length === 0) {
+    <p class="mt-4 text-muted-foreground">Keine Nutzer gefunden.</p>
+  } @else {
+    <table z-table class="mt-4">
+      <thead z-table-header>
+        <tr z-table-row>
+          <th z-table-head>Name</th>
+          <th z-table-head>E-Mail</th>
+          <th z-table-head>Status</th>
+          <th z-table-head></th>
+        </tr>
+      </thead>
+      <tbody z-table-body>
+        @for (user of filteredUsers(); track user.id) {
+          <tr z-table-row>
+            <td z-table-cell>{{ user.firstName }} {{ user.lastName }}</td>
+            <td z-table-cell>{{ user.email }}</td>
+            <td z-table-cell>
+              @if (user.isActive) {
+                <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Aktiv</z-badge>
+              } @else {
+                <z-badge zType="destructive">Deaktiviert</z-badge>
+              }
+            </td>
+            <td z-table-cell class="text-right whitespace-nowrap">
+              <button z-button zType="ghost" zSize="sm" (click)="toggleExpand(user)">
+                {{ expandedUserId() === +user.id! ? 'Schließen' : 'Rollen & Teams' }}
+              </button>
+              <button z-button [zType]="user.isActive ? 'destructive' : 'outline'" zSize="sm" (click)="toggleActive(user)">
+                {{ user.isActive ? 'Deaktivieren' : 'Aktivieren' }}
+              </button>
+            </td>
+          </tr>
+
+          @if (expandedUserId() === +user.id!) {
+            <tr z-table-row>
+              <td z-table-cell colspan="4" class="p-4">
+                @if (panelLoading()) {
+                  <p class="text-muted-foreground">Lädt…</p>
+                } @else {
+                  <div class="grid gap-6 sm:grid-cols-2">
+                    <div>
+                      <h3 class="text-sm font-medium">Rollen</h3>
+
+                      <div class="mt-3 flex items-center gap-2">
+                        <z-select class="w-56" zPlaceholder="Rolle wählen…" [(ngModel)]="selectedRoleId" [ngModelOptions]="{ standalone: true }">
+                          @for (role of availableRoles(); track role.id) {
+                            <z-select-item [zValue]="role.id + ''">{{ role.roleDisplayName }}</z-select-item>
+                          }
+                        </z-select>
+                        <button z-button zType="outline" zSize="sm" (click)="addRole(+user.id!)">Hinzufügen</button>
+                      </div>
+
+                      <ul class="mt-2 flex flex-wrap gap-2">
+                        @for (role of userRoles(); track role.id) {
+                          <li>
+                            <z-badge zType="outline" class="gap-1.5">
+                              {{ role.roleDisplayName }}
+                              <button
+                                type="button"
+                                class="text-muted-foreground hover:text-destructive"
+                                aria-label="Rolle entfernen"
+                                (click)="removeRole(+user.id!, role)"
+                              >
+                                ×
+                              </button>
+                            </z-badge>
+                          </li>
+                        } @empty {
+                          <li class="text-xs text-muted-foreground">Keine Rollen zugewiesen.</li>
+                        }
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h3 class="text-sm font-medium">Teams</h3>
+
+                      <div class="mt-3 flex items-center gap-2">
+                        <z-select class="w-56" zPlaceholder="Team wählen…" [(ngModel)]="selectedTeamId" [ngModelOptions]="{ standalone: true }">
+                          @for (team of availableTeams(); track team.id) {
+                            <z-select-item [zValue]="team.id + ''">{{ team.teamDisplayName }}</z-select-item>
+                          }
+                        </z-select>
+                        <button z-button zType="outline" zSize="sm" (click)="addTeam(+user.id!)">Hinzufügen</button>
+                      </div>
+
+                      <ul class="mt-2 flex flex-wrap gap-2">
+                        @for (team of userTeams(); track team.id) {
+                          <li>
+                            <z-badge zType="outline" class="gap-1.5">
+                              {{ team.teamDisplayName }}
+                              <button
+                                type="button"
+                                class="text-muted-foreground hover:text-destructive"
+                                aria-label="Team entfernen"
+                                (click)="removeTeam(+user.id!, team)"
+                              >
+                                ×
+                              </button>
+                            </z-badge>
+                          </li>
+                        } @empty {
+                          <li class="text-xs text-muted-foreground">Keinem Team zugewiesen.</li>
+                        }
+                      </ul>
+                    </div>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  }
+</div>

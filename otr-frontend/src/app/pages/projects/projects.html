@@ -1,0 +1,60 @@
+<div class="p-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-semibold">Projekte</h1>
+    <button z-button zType="default" zSize="default" (click)="openCreateDialog()">Projekt anlegen</button>
+  </div>
+
+  @if (error()) {
+    <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+  }
+
+  @if (!loading() && projects().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
+  @if (loading()) {
+    <p class="mt-6 text-muted-foreground">Lädt…</p>
+  } @else if (projects().length === 0) {
+    <p class="mt-6 text-muted-foreground">Noch keine Projekte.</p>
+  } @else if (filteredProjects().length === 0) {
+    <p class="mt-6 text-muted-foreground">Keine Projekte gefunden.</p>
+  } @else {
+    <table z-table class="mt-6">
+      <thead z-table-header>
+        <tr z-table-row>
+          <th z-table-head>Name</th>
+          <th z-table-head>Kurzname</th>
+          <th z-table-head>Status</th>
+          <th z-table-head></th>
+        </tr>
+      </thead>
+      <tbody z-table-body>
+        @for (project of filteredProjects(); track project.id) {
+          <tr z-table-row>
+            <td z-table-cell>{{ project.projectDisplayName }}</td>
+            <td z-table-cell class="font-mono text-xs text-muted-foreground">{{ project.projectName }}</td>
+            <td z-table-cell>
+              @if (project.isActive) {
+                <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Aktiv</z-badge>
+              } @else {
+                <z-badge zType="destructive">Inaktiv</z-badge>
+              }
+            </td>
+            <td z-table-cell class="text-right">
+              <button z-button [zType]="project.isActive ? 'destructive' : 'outline'" zSize="sm" (click)="toggleActive(project)">
+                {{ project.isActive ? 'Deaktivieren' : 'Aktivieren' }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

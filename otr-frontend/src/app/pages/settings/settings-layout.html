@@ -1,0 +1,93 @@
+<z-layout class="">
+  <z-sidebar [zWidth]="220" class="bg-background">
+    <z-sidebar-group>
+      <z-sidebar-group-label>Allgemein</z-sidebar-group-label>
+      <a
+        routerLink="/settings/profile"
+        routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      >
+        <ng-icon name="lucideCircleUserRound" size="16" />
+        Profil
+      </a>
+      <a
+        routerLink="/settings"
+        [routerLinkActiveOptions]="{ exact: true }"
+        routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+        class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      >
+        <ng-icon name="lucideSunMoon" size="16" />
+        Erscheinungsbild
+      </a>
+    </z-sidebar-group>
+
+    @if (authService.isSuperadmin()) {
+      <z-sidebar-group class="mt-4">
+        <z-sidebar-group-label>Verwaltung</z-sidebar-group-label>
+        <a
+          routerLink="/settings/users"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideUsers" size="16" />
+          Nutzer
+        </a>
+        <a
+          routerLink="/settings/roles"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideShieldCheck" size="16" />
+          Rollen
+        </a>
+        <a
+          routerLink="/settings/teams"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideBuilding2" size="16" />
+          Teams
+        </a>
+        <a
+          routerLink="/settings/projects"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideFolderKanban" size="16" />
+          Projekte
+        </a>
+        <a
+          routerLink="/settings/smtp"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideMail" size="16" />
+          SMTP
+        </a>
+        <a
+          routerLink="/settings/system"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideServer" size="16" />
+          System
+        </a>
+      </z-sidebar-group>
+      <z-sidebar-group class="mt-4">
+        <z-sidebar-group-label>Sonstiges</z-sidebar-group-label>
+        <a
+          routerLink="/settings/about"
+          routerLinkActive="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+          class="flex h-8 items-center gap-2 rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <ng-icon name="lucideInfo" size="16" />
+          Information
+        </a>
+      </z-sidebar-group>
+    }
+  </z-sidebar>
+
+  <z-content class="min-h-0! p-0! ml-2">
+    <router-outlet />
+  </z-content>
+</z-layout>

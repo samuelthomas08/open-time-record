@@ -1,0 +1,13 @@
+<div class="p-6">
+  <h1 class="text-xl font-semibold">Erscheinungsbild</h1>
+
+  <z-card class="mt-4 max-w-md">
+    <z-card-content class="flex items-center justify-between gap-4">
+      <div>
+        <p class="text-sm font-medium">Dunkles Design</p>
+        <p class="text-sm text-muted-foreground">Wechsle zwischen hellem und dunklem Erscheinungsbild.</p>
+      </div>
+      <z-switch [zChecked]="themeService.isDark()" (zCheckedChange)="themeService.setDark($event)" />
+    </z-card-content>
+  </z-card>
+</div>

@@ -1,0 +1,26 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <z-field>
+    <label z-field-label for="breakReason">Grund{{ data.reasonRequired ? '' : ' (optional)' }}</label>
+    <input
+      z-input
+      id="breakReason"
+      type="text"
+      name="breakReason"
+      [required]="data.reasonRequired"
+      placeholder="z. B. Mittagspause"
+      class="w-64"
+      [(ngModel)]="reason"
+    />
+  </z-field>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird gestartet…' : 'Pause starten' }}
+    </button>
+  </div>
+</form>

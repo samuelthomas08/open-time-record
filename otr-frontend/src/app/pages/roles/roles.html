@@ -1,0 +1,101 @@
+<div class="p-6">
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-semibold">Rollen</h1>
+    <button z-button zType="default" zSize="default" (click)="openCreateDialog()">Rolle anlegen</button>
+  </div>
+
+  @if (error()) {
+    <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+  }
+
+  @if (!loading() && roles().length > 0) {
+    <input
+      z-input
+      type="search"
+      placeholder="Suchen nach Name…"
+      class="mt-4 w-72"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTerm.set($event)"
+    />
+  }
+
+  @if (loading()) {
+    <p class="mt-6 text-muted-foreground">Lädt…</p>
+  } @else if (roles().length === 0) {
+    <p class="mt-6 text-muted-foreground">Noch keine Rollen.</p>
+  } @else if (filteredRoles().length === 0) {
+    <p class="mt-6 text-muted-foreground">Keine Rollen gefunden.</p>
+  } @else {
+    <table z-table class="mt-6">
+      <thead z-table-header>
+        <tr z-table-row>
+          <th z-table-head>Name</th>
+          <th z-table-head>Kurzname</th>
+          <th z-table-head>Status</th>
+          <th z-table-head></th>
+        </tr>
+      </thead>
+      <tbody z-table-body>
+        @for (role of filteredRoles(); track role.id) {
+          <tr z-table-row>
+            <td z-table-cell>{{ role.roleDisplayName }}</td>
+            <td z-table-cell class="font-mono text-xs text-muted-foreground">{{ role.roleName }}</td>
+            <td z-table-cell>
+              @if (role.isActive) {
+                <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Aktiv</z-badge>
+              } @else {
+                <z-badge zType="destructive">Inaktiv</z-badge>
+              }
+            </td>
+            <td z-table-cell class="text-right whitespace-nowrap">
+              <button z-button zType="ghost" zSize="sm" (click)="toggleExpand(role)">
+                {{ expandedRoleId() === +role.id! ? 'Schließen' : 'Berechtigungen' }}
+              </button>
+              <button z-button [zType]="role.isActive ? 'destructive' : 'outline'" zSize="sm" (click)="toggleActive(role)">
+                {{ role.isActive ? 'Deaktivieren' : 'Aktivieren' }}
+              </button>
+            </td>
+          </tr>
+
+          @if (expandedRoleId() === +role.id!) {
+            <tr z-table-row>
+              <td z-table-cell colspan="4" class="p-4">
+                @if (permissionsLoading()) {
+                  <p class="text-muted-foreground">Lädt…</p>
+                } @else {
+                  <div class="grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                    @for (resource of PERMISSION_RESOURCES; track resource.value) {
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-sm">{{ resource.label }}</span>
+                        <z-select
+                          class="w-32"
+                          [(ngModel)]="permissionLevels[resource.value]"
+                          [ngModelOptions]="{ standalone: true }"
+                        >
+                          @for (level of PERMISSION_LEVELS; track level.value) {
+                            <z-select-item [zValue]="level.value + ''">{{ level.label }}</z-select-item>
+                          }
+                        </z-select>
+                      </div>
+                    }
+                  </div>
+
+                  <button
+                    z-button
+                    zType="default"
+                    zSize="sm"
+                    class="mt-4"
+                    [zDisabled]="savingPermissions()"
+                    (click)="savePermissions(role)"
+                  >
+                    {{ savingPermissions() ? 'Wird gespeichert…' : 'Speichern' }}
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  }
+</div>

@@ -1,0 +1,116 @@
+<div>
+  <h1 class="text-xl font-semibold">Arbeitszeiten</h1>
+
+  @if (error()) {
+    <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="mt-6 text-muted-foreground">Lädt…</p>
+  } @else {
+    @if (myCurrentSchedule(); as current) {
+      <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <z-card>
+          <z-card-content>
+            <p class="text-sm text-muted-foreground">Sollstunden pro Woche</p>
+            <p class="mt-1 text-2xl font-semibold tabular-nums">{{ weeklyTotal(current) }} Std.</p>
+          </z-card-content>
+        </z-card>
+        <z-card>
+          <z-card-content>
+            <p class="text-sm text-muted-foreground">Arbeitstage</p>
+            <p class="mt-1 text-2xl font-semibold tabular-nums">{{ workingDaysCount(current) }}</p>
+          </z-card-content>
+        </z-card>
+      </div>
+
+      <z-card class="mt-4">
+        <z-card-content>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <p class="text-sm font-medium">Meine Woche</p>
+            <div class="flex items-center gap-2">
+              <p class="text-sm text-muted-foreground">gültig seit {{ current.effectiveFrom | date: 'dd.MM.yyyy' }}</p>
+              @if (canManageOwnSchedule()) {
+                <button z-button zType="outline" zSize="sm" (click)="manage(myUser()!, true)">Verwalten</button>
+              }
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-7 gap-2">
+            @for (col of dayColumns; track col.key) {
+              <div [class]="dayTileClasses(current, col)">
+                <span class="text-xs" [class.font-semibold]="isToday(col)" [class.text-foreground]="isToday(col)" [class.text-muted-foreground]="!isToday(col)">
+                  {{ col.label }}
+                </span>
+                <span
+                  class="text-lg font-semibold tabular-nums"
+                  [class.text-foreground]="dayValue(current, col) > 0"
+                  [class.text-muted-foreground]="dayValue(current, col) === 0"
+                >
+                  {{ dayValue(current, col) }}
+                </span>
+                <span class="text-[10px] text-muted-foreground">Std.</span>
+              </div>
+            }
+          </div>
+        </z-card-content>
+      </z-card>
+    } @else {
+      <z-card class="mt-6">
+        <z-card-content>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="text-sm font-medium">Meine Arbeitszeit</p>
+              <p class="mt-2 text-sm text-muted-foreground">Für dich ist aktuell keine Sollarbeitszeit hinterlegt.</p>
+            </div>
+            @if (canManageOwnSchedule()) {
+              <button z-button zType="outline" zSize="sm" (click)="manage(myUser()!, true)">Verwalten</button>
+            }
+          </div>
+        </z-card-content>
+      </z-card>
+    }
+
+    @if (managedUsers().length === 0) {
+      <p class="mt-6 text-muted-foreground">
+        @if (authService.isSuperadmin()) {
+          Es sind noch keine anderen Nutzer angelegt.
+        }
+      </p>
+    } @else {
+      <table z-table class="mt-6">
+        <thead z-table-header>
+          <tr z-table-row>
+            <th z-table-head>Mitarbeiter</th>
+            <th z-table-head>Aktuelle Sollstunden</th>
+            <th z-table-head>Gültig seit</th>
+            <th z-table-head></th>
+          </tr>
+        </thead>
+        <tbody z-table-body>
+          @for (user of managedUsers(); track user.id) {
+            <tr z-table-row>
+              <td z-table-cell>{{ user.firstName }} {{ user.lastName }}</td>
+              <td z-table-cell class="tabular-nums">
+                @if (currentScheduleFor(user); as current) {
+                  {{ weeklyTotal(current) }} Std./Woche
+                } @else {
+                  <span class="text-muted-foreground">Kein Sollwert hinterlegt</span>
+                }
+              </td>
+              <td z-table-cell class="text-muted-foreground">
+                @if (currentScheduleFor(user); as current) {
+                  {{ current.effectiveFrom | date: 'dd.MM.yyyy' }}
+                } @else {
+                  —
+                }
+              </td>
+              <td z-table-cell class="text-right">
+                <button z-button zType="outline" zSize="sm" (click)="manage(user)">Verwalten</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  }
+</div>

@@ -1,0 +1,166 @@
+<div>
+  <h1 class="text-xl font-semibold">Zeiterfassung</h1>
+
+  @if (error()) {
+    <p class="mt-4 text-destructive">{{ error() }}</p>
+  }
+
+  <div class="mt-4 rounded-lg border border-border bg-background p-4">
+    @if (timerService.isRunning()) {
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          @if (timerService.runningBreak(); as runningBreak) {
+            <p class="text-sm text-muted-foreground">
+              Pause seit {{ runningBreak.startTime | date: 'shortTime' }}
+              @if (runningBreak.reason) {
+                — {{ runningBreak.reason }}
+              }
+            </p>
+          } @else {
+            <p class="text-sm text-muted-foreground">
+              Läuft seit {{ timerService.runningEntry()?.startTime | date: 'shortTime' }}
+            </p>
+          }
+          <p class="font-mono text-2xl font-semibold tabular-nums">{{ timerService.elapsed() }}</p>
+        </div>
+        <div class="flex items-center gap-2">
+          @if (timerService.runningBreak()) {
+            <button z-button zType="outline" zSize="default" [zDisabled]="actionPending()" (click)="stopBreak()">
+              <ng-icon name="lucideCoffee" size="16" />
+              Pause beenden
+            </button>
+          } @else {
+            <button z-button zType="outline" zSize="default" [zDisabled]="actionPending()" (click)="openStartBreakDialog()">
+              <ng-icon name="lucideCoffee" size="16" />
+              Pause starten
+            </button>
+          }
+          <button z-button zType="destructive" zSize="default" [zDisabled]="actionPending()" (click)="stop()">
+            Stoppen
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4">
+        <div class="flex flex-col gap-1.5">
+          <label z-field-label for="runningProject">Projekt</label>
+          <z-select id="runningProject" class="w-56" zPlaceholder="Kein Projekt" [(ngModel)]="runningProjectId" [ngModelOptions]="{ standalone: true }">
+            <z-select-item zValue="">Kein Projekt</z-select-item>
+            @for (project of projects(); track project.id) {
+              <z-select-item [zValue]="project.id + ''">{{ project.projectDisplayName }}</z-select-item>
+            }
+          </z-select>
+        </div>
+
+        <div class="flex flex-1 flex-col gap-1.5">
+          <label z-field-label for="runningDescription">Beschreibung</label>
+          <input
+            z-input
+            id="runningDescription"
+            type="text"
+            name="runningDescription"
+            placeholder="Woran arbeitest du?"
+            class="w-full"
+            [(ngModel)]="runningDescription"
+          />
+        </div>
+
+        <button z-button zType="outline" zSize="default" [zDisabled]="actionPending()" (click)="saveRunning()">
+          Speichern
+        </button>
+      </div>
+    } @else {
+      <div class="flex items-center justify-between gap-4">
+        <p class="text-sm text-muted-foreground">Keine laufende Zeiterfassung</p>
+        <button z-button zType="default" zSize="default" [zDisabled]="actionPending()" (click)="start()">
+          Zeit starten
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="mt-6 text-muted-foreground">Lädt…</p>
+  } @else if (timeEntries().length === 0) {
+    <p class="mt-6 text-muted-foreground">Noch keine Zeiteinträge.</p>
+  } @else {
+    <div class="mt-6 overflow-x-auto">
+      <table z-table class="min-w-[52rem]">
+        <thead z-table-header>
+          <tr z-table-row>
+            <th z-table-head>Dauer</th>
+            <th z-table-head>Start</th>
+            <th z-table-head>Ende</th>
+            <th z-table-head>Status</th>
+            <th z-table-head>Projekt</th>
+            <th z-table-head>Beschreibung</th>
+            <th z-table-head></th>
+          </tr>
+        </thead>
+        <tbody z-table-body>
+          @for (entry of timeEntries(); track entry.id) {
+            @if (editingId() === +entry.id!) {
+              <tr z-table-row class="bg-muted/40">
+                <td z-table-cell class="font-medium tabular-nums">
+                  {{ entry.status === RUNNING ? timerService.elapsed().slice(0, 5) : duration(entry) }}
+                </td>
+                <td z-table-cell>{{ entry.startTime | date: 'short' }}</td>
+                <td z-table-cell>{{ entry.endTime ? (entry.endTime | date: 'short') : '—' }}</td>
+                <td z-table-cell>
+                  @if (entry.status === RUNNING) {
+                    <z-badge class="bg-primary/10 text-primary">Läuft</z-badge>
+                  } @else {
+                    <z-badge class="bg-muted text-muted-foreground">Abgeschlossen</z-badge>
+                  }
+                </td>
+                <td z-table-cell>
+                  <z-select class="w-56" zPlaceholder="Kein Projekt" [(ngModel)]="editProjectId" [ngModelOptions]="{ standalone: true }">
+                    <z-select-item zValue="">Kein Projekt</z-select-item>
+                    @for (project of projects(); track project.id) {
+                      <z-select-item [zValue]="project.id + ''">{{ project.projectDisplayName }}</z-select-item>
+                    }
+                  </z-select>
+                </td>
+                <td z-table-cell>
+                  <input z-input type="text" name="editDescription-{{ entry.id }}" class="w-full" [(ngModel)]="editDescription" />
+                </td>
+                <td z-table-cell class="text-right whitespace-nowrap">
+                  <button z-button zType="ghost" zSize="sm" [zDisabled]="actionPending()" (click)="saveEdit(entry)">
+                    Speichern
+                  </button>
+                  <button z-button zType="ghost" zSize="sm" (click)="cancelEdit()">Abbrechen</button>
+                </td>
+              </tr>
+            } @else {
+              <tr z-table-row>
+                <td z-table-cell class="font-medium tabular-nums">
+                  {{ entry.status === RUNNING ? timerService.elapsed().slice(0, 5) : duration(entry) }}
+                </td>
+                <td z-table-cell>{{ entry.startTime | date: 'short' }}</td>
+                <td z-table-cell>{{ entry.endTime ? (entry.endTime | date: 'short') : '—' }}</td>
+                <td z-table-cell>
+                  @if (entry.status === RUNNING) {
+                    <z-badge class="bg-primary/10 text-primary">Läuft</z-badge>
+                  } @else {
+                    <z-badge class="bg-muted text-muted-foreground">Abgeschlossen</z-badge>
+                  }
+                </td>
+                <td z-table-cell>{{ projectName(entry.projectId) }}</td>
+                <td z-table-cell>{{ entry.description || '—' }}</td>
+                <td z-table-cell class="text-right whitespace-nowrap">
+                  <button z-button zType="ghost" zSize="sm" (click)="startEdit(entry)">Bearbeiten</button>
+                  @if (entry.status !== RUNNING) {
+                    <button z-button zType="ghost" zSize="sm" (click)="requestCorrection(entry)">Korrektur</button>
+                  }
+                  <button z-button zType="ghost" zSize="sm" [zDisabled]="actionPending()" (click)="deleteEntry(entry)">
+                    Löschen
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

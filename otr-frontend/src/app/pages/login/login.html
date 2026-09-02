@@ -1,0 +1,29 @@
+<div class="mx-auto flex min-h-[calc(100vh-57px)] max-w-sm flex-col justify-center px-4 py-12">
+  <h1 class="text-xl font-semibold">Anmelden</h1>
+  <p class="mt-1 text-sm text-muted-foreground">Willkommen zurück bei Open Time Record.</p>
+
+  <form class="mt-6 flex flex-col gap-4" (ngSubmit)="onSubmit()">
+    <z-field>
+      <label z-field-label for="email">E-Mail</label>
+      <input z-input id="email" type="email" name="email" required class="w-64" [(ngModel)]="email" />
+    </z-field>
+
+    <z-field>
+      <label z-field-label for="password">Passwort</label>
+      <input z-input id="password" type="password" name="password" required class="w-64" [(ngModel)]="password" />
+    </z-field>
+
+    @if (error()) {
+      <p class="text-sm text-destructive">{{ error() }}</p>
+    }
+
+    <button z-button zType="default" zSize="default" type="submit" [zDisabled]="loading()">
+      {{ loading() ? 'Wird geprüft…' : 'Anmelden' }}
+    </button>
+  </form>
+
+  <p class="mt-6 text-sm text-muted-foreground">
+    Noch kein Konto?
+    <a routerLink="/register" class="text-primary underline-offset-4 hover:underline">Registrieren</a>
+  </p>
+</div>

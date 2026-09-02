@@ -1,0 +1,31 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <z-field>
+    <label z-field-label for="projectName">Kurzname</label>
+    <input z-input id="projectName" type="text" name="projectName" required placeholder="otr-internal" class="w-48" [(ngModel)]="projectName" />
+  </z-field>
+
+  <z-field>
+    <label z-field-label for="projectDisplayName">Anzeigename</label>
+    <input
+      z-input
+      id="projectDisplayName"
+      type="text"
+      name="projectDisplayName"
+      required
+      placeholder="OTR Weiterentwicklung"
+      class="w-64"
+      [(ngModel)]="projectDisplayName"
+    />
+  </z-field>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird angelegt…' : 'Projekt anlegen' }}
+    </button>
+  </div>
+</form>

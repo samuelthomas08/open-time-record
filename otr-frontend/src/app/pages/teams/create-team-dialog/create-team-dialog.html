@@ -1,0 +1,40 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <z-field>
+    <label z-field-label for="teamName">Kurzname</label>
+    <input z-input id="teamName" type="text" name="teamName" required placeholder="entwicklung" class="w-48" [(ngModel)]="teamName" />
+  </z-field>
+
+  <z-field>
+    <label z-field-label for="teamDisplayName">Anzeigename</label>
+    <input
+      z-input
+      id="teamDisplayName"
+      type="text"
+      name="teamDisplayName"
+      required
+      placeholder="Entwicklung"
+      class="w-64"
+      [(ngModel)]="teamDisplayName"
+    />
+  </z-field>
+
+  <z-field>
+    <label z-field-label for="managerId">Vorgesetzter</label>
+    <z-select id="managerId" class="w-56" zPlaceholder="Vorgesetzten wählen…" [(ngModel)]="managerId" [ngModelOptions]="{ standalone: true }">
+      @for (user of users(); track user.id) {
+        <z-select-item [zValue]="user.id + ''">{{ user.firstName }} {{ user.lastName }}</z-select-item>
+      }
+    </z-select>
+  </z-field>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird angelegt…' : 'Team anlegen' }}
+    </button>
+  </div>
+</form>

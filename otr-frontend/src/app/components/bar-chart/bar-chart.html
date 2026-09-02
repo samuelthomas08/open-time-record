@@ -1,0 +1,15 @@
+@if (data().length === 0) {
+  <p class="text-sm text-muted-foreground">{{ emptyMessage() }}</p>
+} @else {
+  <div class="flex flex-col gap-2.5">
+    @for (item of data(); track item.label) {
+      <div class="flex items-center gap-3">
+        <span class="w-28 shrink-0 truncate text-sm text-muted-foreground" [title]="item.label">{{ item.label }}</span>
+        <div class="h-[18px] flex-1 rounded-sm bg-muted" [attr.title]="barTitle(item)">
+          <div class="h-full rounded-r bg-green-600 transition-[width]" [style.width.%]="widthPct(item.value)"></div>
+        </div>
+        <span class="w-20 shrink-0 text-right text-sm whitespace-nowrap text-foreground tabular-nums">{{ item.displayValue }}</span>
+      </div>
+    }
+  </div>
+}

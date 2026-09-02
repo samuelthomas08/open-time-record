@@ -1,0 +1,8 @@
+@RootUrl = http://localhost:5005
+
+GET {{RootUrl}}/api/user
+Accept: application/json
+
+###
+GET {{RootUrl}}/api/user/3
+Accept: application/json

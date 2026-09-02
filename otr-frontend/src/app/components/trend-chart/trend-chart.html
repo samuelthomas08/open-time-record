@@ -1,0 +1,7 @@
+@if (data().length === 0) {
+  <p class="text-sm text-muted-foreground">{{ emptyMessage() }}</p>
+} @else {
+  <div class="h-[220px]">
+    <canvas #canvas></canvas>
+  </div>
+}

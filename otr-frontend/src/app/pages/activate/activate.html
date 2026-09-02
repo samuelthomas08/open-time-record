@@ -1,0 +1,46 @@
+<div class="mx-auto flex min-h-[calc(100vh-57px)] max-w-sm flex-col justify-center px-4 py-12">
+  <h1 class="text-xl font-semibold">Konto bestätigen</h1>
+  <p class="mt-1 text-sm text-muted-foreground">
+    Wir haben dir einen Bestätigungscode an deine E-Mail-Adresse geschickt.
+  </p>
+
+  <form class="mt-6 flex flex-col gap-4" (ngSubmit)="onSubmit()">
+    <z-field>
+      <label z-field-label for="email">E-Mail</label>
+      <input z-input id="email" type="email" name="email" required class="w-64" [(ngModel)]="email" />
+    </z-field>
+
+    <z-field>
+      <label z-field-label for="code">Bestätigungscode</label>
+      <input
+        z-input
+        id="code"
+        type="text"
+        name="code"
+        inputmode="numeric"
+        required
+        class="w-36 tracking-widest"
+        [(ngModel)]="code"
+      />
+    </z-field>
+
+    @if (error()) {
+      <p class="text-sm text-destructive">{{ error() }}</p>
+    }
+    @if (info()) {
+      <p class="text-sm text-muted-foreground">{{ info() }}</p>
+    }
+
+    <button z-button zType="default" zSize="default" type="submit" [zDisabled]="loading()">
+      {{ loading() ? 'Wird geprüft…' : 'Bestätigen' }}
+    </button>
+
+    <button z-button zType="ghost" zSize="sm" type="button" (click)="resend()">
+      Code erneut senden
+    </button>
+  </form>
+
+  <p class="mt-6 text-sm text-muted-foreground">
+    Zurück zum <a routerLink="/login" class="text-primary underline-offset-4 hover:underline">Login</a>
+  </p>
+</div>

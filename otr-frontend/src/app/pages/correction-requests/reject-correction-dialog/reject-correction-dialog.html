@@ -1,0 +1,22 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <p class="text-sm text-muted-foreground">
+    Antrag von <span class="text-foreground">{{ data.request.requestedByUserName }}</span> ablehnen. Du kannst optional eine
+    Begründung angeben, die für die antragstellende Person sichtbar ist.
+  </p>
+
+  <z-field>
+    <label z-field-label for="rejectNote">Begründung (optional)</label>
+    <input z-input id="rejectNote" type="text" name="rejectNote" placeholder="z. B. Zeitraum überschneidet sich" class="w-80" [(ngModel)]="note" />
+  </z-field>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="destructive" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Wird abgelehnt…' : 'Ablehnen' }}
+    </button>
+  </div>
+</form>

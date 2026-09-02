@@ -1,0 +1,49 @@
+<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+  <z-field>
+    <label z-field-label>Sollstunden pro Wochentag</label>
+    <div class="grid grid-cols-7 gap-2">
+      @for (field of dayFields; track field.key) {
+        <div class="flex flex-col items-center gap-1">
+          <span class="text-xs text-muted-foreground">{{ field.label }}</span>
+          <input
+            z-input
+            type="number"
+            min="0"
+            [max]="maxHoursPerDay"
+            step="0.5"
+            class="w-full text-center"
+            [name]="field.key"
+            [ngModel]="dayValue(field)"
+            (ngModelChange)="setDayValue(field, $event)"
+          />
+        </div>
+      }
+    </div>
+    <p class="mt-2 text-sm text-muted-foreground">
+      Gesamt: <span class="font-medium text-foreground tabular-nums">{{ formTotal() }} Std./Woche</span>
+    </p>
+  </z-field>
+
+  <div class="flex gap-4">
+    <z-field>
+      <label z-field-label for="effectiveFrom">Gültig ab</label>
+      <z-date-picker zId="effectiveFrom" zCaptionLayout="dropdown" zPlaceholder="Datum" zFormat="d. MMM yyyy" [(value)]="effectiveFrom" />
+    </z-field>
+
+    <z-field>
+      <label z-field-label for="effectiveTo">Gültig bis</label>
+      <z-date-picker zId="effectiveTo" zCaptionLayout="dropdown" zPlaceholder="unbefristet" zFormat="d. MMM yyyy" [(value)]="effectiveTo" />
+    </z-field>
+  </div>
+
+  @if (error()) {
+    <p class="text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <div class="flex justify-end gap-2">
+    <button z-button zType="outline" type="button" (click)="cancel()">Abbrechen</button>
+    <button z-button zType="default" type="submit" [zDisabled]="submitting()">
+      {{ submitting() ? 'Speichert…' : isEditing ? 'Speichern' : 'Hinzufügen' }}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,123 @@
+<div>
+  <h1 class="text-xl font-semibold">Korrekturanträge</h1>
+
+  @if (error()) {
+    <p class="mt-4 text-sm text-destructive">{{ error() }}</p>
+  }
+
+  <h2 class="mt-4 text-lg font-medium">Meine Anträge</h2>
+
+  @if (loading()) {
+    <p class="mt-4 text-muted-foreground">Lädt…</p>
+  } @else if (mineRequests().length === 0) {
+    <p class="mt-4 text-muted-foreground">Noch keine Anträge gestellt.</p>
+  } @else {
+    <div class="mt-4 overflow-x-auto">
+      <table z-table class="min-w-[48rem]">
+        <thead z-table-header>
+          <tr z-table-row>
+            <th z-table-head>Zeiteintrag</th>
+            <th z-table-head>Grund</th>
+            <th z-table-head>Vorgeschlagen</th>
+            <th z-table-head>Angefragt am</th>
+            <th z-table-head>Status</th>
+          </tr>
+        </thead>
+        <tbody z-table-body>
+          @for (request of mineRequests(); track request.id) {
+            <tr z-table-row>
+              <td z-table-cell>#{{ request.timeEntryId }}</td>
+              <td z-table-cell>{{ request.reason }}</td>
+              <td z-table-cell class="whitespace-nowrap">
+                {{ request.proposedStartTime ? (request.proposedStartTime | date: 'short') : '—' }}
+                –
+                {{ request.proposedEndTime ? (request.proposedEndTime | date: 'short') : '—' }}
+              </td>
+              <td z-table-cell class="whitespace-nowrap">{{ request.requestedAt | date: 'short' }}</td>
+              <td z-table-cell>
+                @if (request.status === PENDING) {
+                  <z-badge class="bg-muted text-muted-foreground">Offen</z-badge>
+                } @else if (request.status === APPROVED) {
+                  <z-badge class="bg-green-500/10 text-green-700 dark:bg-green-500/15 dark:text-green-400">Genehmigt</z-badge>
+                } @else {
+                  <span class="inline-flex items-center gap-1">
+                    <z-badge zType="destructive">Abgelehnt</z-badge>
+                    @if (request.reviewNote) {
+                      <button
+                        z-button
+                        zType="ghost"
+                        zSize="icon-xs"
+                        type="button"
+                        zPopover
+                        [zContent]="reviewNoteTpl"
+                        zPlacement="top"
+                        aria-label="Ablehnungsgrund anzeigen"
+                      >
+                        <ng-icon name="lucideMessageSquareText" size="14" />
+                      </button>
+                      <ng-template #reviewNoteTpl>
+                        <div z-popover>
+                          <p z-popover-description>{{ request.reviewNote }}</p>
+                        </div>
+                      </ng-template>
+                    }
+                  </span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (authService.isSuperadmin()) {
+    <h2 class="mt-8 text-lg font-medium">Zu prüfen</h2>
+
+    @if (pendingRequests().length === 0) {
+      <p class="mt-4 text-muted-foreground">Keine offenen Anträge.</p>
+    } @else {
+      <div class="mt-4 overflow-x-auto">
+        <table z-table class="min-w-[64rem]">
+          <thead z-table-header>
+            <tr z-table-row>
+              <th z-table-head>Von</th>
+              <th z-table-head>Zeiteintrag (aktuell)</th>
+              <th z-table-head>Vorgeschlagen</th>
+              <th z-table-head>Grund</th>
+              <th z-table-head>Angefragt am</th>
+              <th z-table-head></th>
+            </tr>
+          </thead>
+          <tbody z-table-body>
+            @for (request of pendingRequests(); track request.id) {
+              <tr z-table-row>
+                <td z-table-cell>{{ request.requestedByUserName }}</td>
+                <td z-table-cell class="whitespace-nowrap">
+                  {{ request.timeEntryStartTime | date: 'short' }}
+                  –
+                  {{ request.timeEntryEndTime ? (request.timeEntryEndTime | date: 'short') : '—' }}
+                </td>
+                <td z-table-cell class="whitespace-nowrap">
+                  {{ request.proposedStartTime ? (request.proposedStartTime | date: 'short') : '—' }}
+                  –
+                  {{ request.proposedEndTime ? (request.proposedEndTime | date: 'short') : '—' }}
+                </td>
+                <td z-table-cell>{{ request.reason }}</td>
+                <td z-table-cell class="whitespace-nowrap">{{ request.requestedAt | date: 'short' }}</td>
+                <td z-table-cell class="text-right whitespace-nowrap">
+                  <button z-button zType="outline" zSize="sm" [zDisabled]="actionPending()" (click)="approve(request)">
+                    Genehmigen
+                  </button>
+                  <button z-button zType="ghost" zSize="sm" [zDisabled]="actionPending()" (click)="reject(request)">
+                    Ablehnen
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>
