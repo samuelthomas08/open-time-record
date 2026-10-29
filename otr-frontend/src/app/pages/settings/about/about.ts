@@ -5,6 +5,7 @@ import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components
 
 const APP_VERSION = '0.1.0';
 
+/** Settings page with information about the application. */
 @Component({
   selector: 'app-settings-about',
   imports: [Logo, ZardCardComponent, ZardCardContentComponent],

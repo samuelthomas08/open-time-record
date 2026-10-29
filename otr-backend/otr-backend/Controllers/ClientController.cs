@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages clients that projects can belong to.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ClientController : ControllerBase
@@ -13,15 +16,17 @@ public class ClientController : ControllerBase
 
     public ClientController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all clients.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Client>>> GetClients()
     {
         return Ok(await _context.Clients.ToListAsync());
     }
 
+    /// <summary>Returns a single client or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Client>> GetClientById(uint id)
     {
@@ -34,6 +39,7 @@ public class ClientController : ControllerBase
         return Ok(client);
     }
 
+    /// <summary>Creates a new client.</summary>
     [HttpPost]
     public async Task<ActionResult<Client>> AddClient(Client client)
     {

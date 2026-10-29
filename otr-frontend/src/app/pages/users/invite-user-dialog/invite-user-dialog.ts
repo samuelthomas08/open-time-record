@@ -14,6 +14,7 @@ export interface InviteUserDialogData {
   onSuccess: () => void;
 }
 
+/** Dialog for inviting a user by e-mail or by a copyable invitation link. */
 @Component({
   selector: 'app-invite-user-dialog',
   imports: [FormsModule, ZardButtonComponent, ZardFieldImports, ZardInputComponent, ZardSelectImports, ZardSwitchComponent],
@@ -27,20 +28,21 @@ export class InviteUserDialog implements OnInit {
   private readonly dialogRef = inject(ZardDialogRef<InviteUserDialog>);
   private readonly data = injectDialogData<InviteUserDialogData>();
 
-  protected readonly submitting = signal(false);
+  protected readonly submitting = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
   protected readonly roles = signal<Role[]>([]);
   protected readonly teams = signal<Team[]>([]);
   protected readonly users = signal<User[]>([]);
   protected readonly linkResult = signal<string | null>(null);
-  protected readonly copied = signal(false);
+  protected readonly copied = signal<boolean>(false);
 
-  protected email = '';
-  protected roleId = '';
-  protected teamId = '';
-  protected managerId = '';
-  protected sendEmail = true;
+  protected email: string = '';
+  protected roleId: string = '';
+  protected teamId: string = '';
+  protected managerId: string = '';
+  protected sendEmail: boolean = true;
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.roleService.apiRoleGet$Json().then(roles => this.roles.set(roles.filter(r => r.isActive)));
     this.teamService.apiTeamGet$Json().then(teams => this.teams.set(teams.filter(t => t.isActive)));
@@ -59,10 +61,12 @@ export class InviteUserDialog implements OnInit {
     }
   }
 
+  /** Toggles whether the invitation is sent by e-mail. */
   protected setSendEmail(value: boolean): void {
     this.sendEmail = value;
   }
 
+  /** Validates and submits the form, closing the dialog on success. */
   protected async submit(): Promise<void> {
     if (!this.roleId) {
       this.error.set('Bitte eine Rolle auswählen.');
@@ -101,16 +105,19 @@ export class InviteUserDialog implements OnInit {
     }
   }
 
+  /** Copies the invitation link to the clipboard. */
   protected async copyLink(link: string): Promise<void> {
     await navigator.clipboard.writeText(link);
     this.copied.set(true);
     setTimeout(() => this.copied.set(false), 2000);
   }
 
+  /** Closes the dialog. */
   protected close(): void {
     this.dialogRef.close();
   }
 
+  /** Closes the dialog without saving. */
   protected cancel(): void {
     this.dialogRef.close();
   }

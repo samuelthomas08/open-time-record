@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -7,6 +7,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages roles and the permissions they grant.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class RoleController : Controller
@@ -15,15 +17,17 @@ public class RoleController : Controller
 
     public RoleController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all roles.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Role>>> GetRoles()
     {
         return Ok(await _context.Roles.ToListAsync());
     }
 
+    /// <summary>Returns a single role or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Role>> GetRoleById(uint id)
     {
@@ -36,6 +40,7 @@ public class RoleController : Controller
         return Ok(role);
     }
 
+    /// <summary>Looks up a role by its unique technical name.</summary>
     [HttpGet("by-name/{roleName}")]
     public async Task<ActionResult<Role>> GetRoleByRoleName(string roleName)
     {
@@ -48,6 +53,7 @@ public class RoleController : Controller
         return Ok(role);
     }
 
+    /// <summary>Creates a new role.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPost]
     public async Task<ActionResult<Role>> AddRole(Role role)
@@ -62,6 +68,7 @@ public class RoleController : Controller
         return CreatedAtAction(nameof(GetRoleById), new { id = role.Id }, role);
     }
 
+    /// <summary>Updates name, display name and active flag of a role.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<Role>> UpdateRole(uint id, Role role)
@@ -80,6 +87,7 @@ public class RoleController : Controller
         return Ok(existing);
     }
 
+    /// <summary>Returns the permissions granted by a role. Resources without a grant are absent.</summary>
     [HttpGet("{id}/permissions")]
     public async Task<ActionResult<List<RolePermissionDto>>> GetRolePermissions(uint id)
     {
@@ -91,6 +99,7 @@ public class RoleController : Controller
         return Ok(permissions);
     }
 
+    /// <summary>Replaces all permissions of a role. Entries with level <c>None</c> are dropped.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}/permissions")]
     public async Task<ActionResult<List<RolePermissionDto>>> UpdateRolePermissions(uint id, List<RolePermissionDto> permissions)

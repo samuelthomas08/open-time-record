@@ -11,6 +11,7 @@ export interface CreateRoleDialogData {
   onSuccess: () => void;
 }
 
+/** Dialog for creating a role. */
 @Component({
   selector: 'app-create-role-dialog',
   imports: [FormsModule, ZardButtonComponent, ZardFieldImports, ZardInputComponent],
@@ -21,11 +22,12 @@ export class CreateRoleDialog {
   private readonly dialogRef = inject(ZardDialogRef<CreateRoleDialog>);
   private readonly data = injectDialogData<CreateRoleDialogData>();
 
-  protected readonly submitting = signal(false);
+  protected readonly submitting = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
-  protected roleName = '';
-  protected roleDisplayName = '';
+  protected roleName: string = '';
+  protected roleDisplayName: string = '';
 
+  /** Validates and submits the form, closing the dialog on success. */
   protected async submit(): Promise<void> {
     this.submitting.set(true);
     this.error.set(null);
@@ -43,6 +45,7 @@ export class CreateRoleDialog {
     }
   }
 
+  /** Closes the dialog without saving. */
   protected cancel(): void {
     this.dialogRef.close();
   }

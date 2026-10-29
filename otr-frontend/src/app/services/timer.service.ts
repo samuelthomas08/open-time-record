@@ -1,8 +1,7 @@
 import { Injectable, afterNextRender, computed, inject, signal } from '@angular/core';
 
 import { TimeEntry, TimeEntryBreak, TimeEntryService } from '@/api-client';
-
-const RUNNING = 0;
+import { TIME_ENTRY_STATUS_RUNNING, sumCompletedBreakMs } from '@/utils/time-entry.utils';
 
 function formatHhMmSs(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
@@ -12,12 +11,13 @@ function formatHhMmSs(totalSeconds: number): string {
   return [hours, minutes, seconds].map(n => n.toString().padStart(2, '0')).join(':');
 }
 
+/** Single source of truth for the running timer and its breaks, shared by the header, dashboard and time entries page. */
 @Injectable({ providedIn: 'root' })
 export class TimerService {
   private readonly timeEntryService = inject(TimeEntryService);
 
   private readonly runningEntrySignal = signal<TimeEntry | null>(null);
-  private readonly loadedSignal = signal(false);
+  private readonly loadedSignal = signal<boolean>(false);
   private readonly nowTick = signal(Date.now());
   private tickInterval?: ReturnType<typeof setInterval>;
 
@@ -45,14 +45,7 @@ export class TimerService {
     return formatHhMmSs(totalSeconds);
   });
 
-  private readonly completedBreakMs = computed(() =>
-    (this.runningEntrySignal()?.breaks ?? []).reduce((sum, b) => {
-      if (!b.endTime || !b.startTime) {
-        return sum;
-      }
-      return sum + (new Date(b.endTime).getTime() - new Date(b.startTime).getTime());
-    }, 0),
-  );
+  private readonly completedBreakMs = computed(() => sumCompletedBreakMs(this.runningEntrySignal()?.breaks));
 
   constructor() {
     afterNextRender(() => {
@@ -60,24 +53,28 @@ export class TimerService {
     });
   }
 
+  /** Loads the running entry once; later calls are no-ops. */
   async ensureLoaded(): Promise<void> {
     if (!this.loadedSignal()) {
       await this.refresh();
     }
   }
 
+  /** Reloads the running entry from the backend. */
   async refresh(): Promise<void> {
     const entries = await this.timeEntryService.apiTimeEntryMineGet$Json();
-    const running = entries.find(entry => entry.status === RUNNING) ?? null;
+    const running = entries.find(entry => entry.status === TIME_ENTRY_STATUS_RUNNING) ?? null;
     this.runningEntrySignal.set(running);
     this.loadedSignal.set(true);
   }
 
+  /** Starts the timer. */
   async start(): Promise<void> {
     const entry = await this.timeEntryService.apiTimeEntryStartPost$Json();
     this.runningEntrySignal.set(entry);
   }
 
+  /** Stops the timer. */
   async stop(): Promise<void> {
     const running = this.runningEntrySignal();
     if (!running?.id) {
@@ -88,6 +85,7 @@ export class TimerService {
     this.runningEntrySignal.set(null);
   }
 
+  /** Starts a break on the running entry. */
   async startBreak(reason?: string): Promise<void> {
     const running = this.runningEntrySignal();
     if (!running?.id) {
@@ -101,6 +99,7 @@ export class TimerService {
     this.runningEntrySignal.update(entry => (entry ? { ...entry, breaks: [...(entry.breaks ?? []), newBreak] } : entry));
   }
 
+  /** Ends the running break. */
   async stopBreak(): Promise<void> {
     const running = this.runningEntrySignal();
     const openBreak = this.runningBreak();

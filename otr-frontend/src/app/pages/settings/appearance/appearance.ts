@@ -4,6 +4,7 @@ import { ThemeService } from '@/services/theme.service';
 import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components/card';
 import { ZardSwitchComponent } from '@/shared/components/switch';
 
+/** Settings page for choosing the theme. */
 @Component({
   selector: 'app-settings-appearance',
   imports: [ZardCardComponent, ZardCardContentComponent, ZardSwitchComponent],

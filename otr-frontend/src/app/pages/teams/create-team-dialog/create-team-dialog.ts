@@ -12,6 +12,7 @@ export interface CreateTeamDialogData {
   onSuccess: () => void;
 }
 
+/** Dialog for creating a team. */
 @Component({
   selector: 'app-create-team-dialog',
   imports: [FormsModule, ZardButtonComponent, ZardFieldImports, ZardInputComponent, ZardSelectImports],
@@ -24,16 +25,18 @@ export class CreateTeamDialog implements OnInit {
   private readonly data = injectDialogData<CreateTeamDialogData>();
 
   protected readonly users = signal<User[]>([]);
-  protected readonly submitting = signal(false);
+  protected readonly submitting = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
-  protected teamName = '';
-  protected teamDisplayName = '';
-  protected managerId = '';
+  protected teamName: string = '';
+  protected teamDisplayName: string = '';
+  protected managerId: string = '';
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.userService.apiUserGet$Json().then(users => this.users.set(users));
   }
 
+  /** Validates and submits the form, closing the dialog on success. */
   protected async submit(): Promise<void> {
     if (!this.managerId) {
       this.error.set('Bitte einen Vorgesetzten auswählen.');
@@ -62,6 +65,7 @@ export class CreateTeamDialog implements OnInit {
     }
   }
 
+  /** Closes the dialog without saving. */
   protected cancel(): void {
     this.dialogRef.close();
   }

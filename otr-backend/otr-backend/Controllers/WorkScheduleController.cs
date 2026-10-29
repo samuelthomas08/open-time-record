@@ -9,6 +9,7 @@ using otr_backend.Services;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages the target working hours of users. Callers may manage the schedules of the users they are responsible for.</summary>
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -19,12 +20,11 @@ public class WorkScheduleController : ControllerBase
 
     public WorkScheduleController(OtrDbContext context, ManagedUsersService managedUsersService)
     {
-        this._context = context;
-        this._managedUsersService = managedUsersService;
+        _context = context;
+        _managedUsersService = managedUsersService;
     }
 
-    // Every work schedule entry for every user the caller manages (or everyone but themselves, for Superadmins) —
-    // mirrors TimeEntryController's "team" endpoint so the frontend can group client-side.
+    /// <summary>Returns the schedules of all users the caller manages (everyone but themselves for Superadmins), so the frontend can group them client-side. Mirrors the "team" endpoint of the time entry controller.</summary>
     [HttpGet("managed")]
     public async Task<ActionResult<List<WorkSchedule>>> GetManagedWorkSchedules()
     {
@@ -46,7 +46,7 @@ public class WorkScheduleController : ControllerBase
         return Ok(schedules);
     }
 
-    // Every own schedule period — no manager check needed, everyone may see their own.
+    /// <summary>Returns the caller's own schedule periods. No manager check is needed; everyone may see their own.</summary>
     [HttpGet("mine")]
     public async Task<ActionResult<List<WorkSchedule>>> GetMyWorkSchedules()
     {
@@ -59,6 +59,7 @@ public class WorkScheduleController : ControllerBase
         return Ok(schedules);
     }
 
+    /// <summary>Creates a schedule period for a user the caller is allowed to manage.</summary>
     [HttpPost]
     public async Task<ActionResult<WorkSchedule>> AddWorkSchedule(WorkScheduleUpsertRequest request)
     {
@@ -72,7 +73,7 @@ public class WorkScheduleController : ControllerBase
             return BadRequest("Die Sollstunden je Wochentag müssen zwischen 0 und 24 liegen.");
         }
 
-        var workSchedule = new WorkSchedule
+        WorkSchedule workSchedule = new WorkSchedule
         {
             UserId = request.UserId,
             MondayHours = request.MondayHours,
@@ -91,6 +92,7 @@ public class WorkScheduleController : ControllerBase
         return Ok(workSchedule);
     }
 
+    /// <summary>Replaces the hours and validity period of a schedule.</summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<WorkSchedule>> UpdateWorkSchedule(uint id, WorkScheduleUpsertRequest request)
     {
@@ -124,6 +126,7 @@ public class WorkScheduleController : ControllerBase
         return Ok(workSchedule);
     }
 
+    /// <summary>Deletes a schedule period.</summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteWorkSchedule(uint id)
     {
@@ -143,6 +146,7 @@ public class WorkScheduleController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Checks that every weekday value lies between 0 and 24 hours.</summary>
     private static bool HasValidDayHours(WorkScheduleUpsertRequest request)
     {
         decimal[] hours =
@@ -153,6 +157,7 @@ public class WorkScheduleController : ControllerBase
         return hours.All(h => h is >= 0 and <= 24);
     }
 
+    /// <summary>Whether the caller may change the schedule of <paramref name="targetUserId"/>: Superadmins, managers of that user, and users who have no manager themselves.</summary>
     private async Task<bool> CanManageAsync(uint targetUserId)
     {
         if (User.IsInRole("Superadmin"))

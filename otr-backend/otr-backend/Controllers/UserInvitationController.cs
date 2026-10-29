@@ -10,6 +10,7 @@ using otr_backend.Services;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Creates and manages invitations for new users.</summary>
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -26,9 +27,17 @@ public class UserInvitationController : ControllerBase
         _permissionService = permissionService;
     }
 
+    /// <summary>Returns open invitations. Accepted invitations already appear as users and archived ones were dismissed on purpose, so neither is listed.</summary>
     [HttpGet]
     public async Task<ActionResult<List<UserInvitation>>> GetInvitations()
     {
+        // Invitations contain their redemption code, so listing them requires read permission.
+        bool allowed = await _permissionService.HasPermissionAsync(User.GetUserId(), PermissionResource.Invitations, PermissionLevel.Read);
+        if (!allowed)
+        {
+            return Forbid();
+        }
+
         // Accepted invitations already show up as real users, and archived ones were
         // deliberately dismissed — neither belongs in the working list of open invites.
         List<UserInvitation> invitations = await _context.UserInvitations
@@ -39,6 +48,7 @@ public class UserInvitationController : ControllerBase
         return Ok(invitations);
     }
 
+    /// <summary>Hides an invitation from the list of open invitations.</summary>
     [HttpPost("{id}/archive")]
     public async Task<IActionResult> ArchiveInvitation(uint id)
     {
@@ -60,9 +70,17 @@ public class UserInvitationController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Creates an invitation valid for seven days and either e-mails the code or returns it to the caller.</summary>
     [HttpPost]
     public async Task<ActionResult<InviteUserResponse>> InviteUser(InviteUserRequest request)
     {
+        // An invitation assigns an arbitrary role, so creating one must not be open to every user.
+        bool allowed = await _permissionService.HasPermissionAsync(User.GetUserId(), PermissionResource.Invitations, PermissionLevel.Write);
+        if (!allowed)
+        {
+            return Forbid();
+        }
+
         bool alreadyUser = await _context.Users.AnyAsync(u => u.Email == request.Email);
         if (alreadyUser)
         {
@@ -85,7 +103,7 @@ public class UserInvitationController : ControllerBase
             return BadRequest("Der ausgewählte Vorgesetzte existiert nicht.");
         }
 
-        var invitation = new UserInvitation
+        UserInvitation invitation = new UserInvitation
         {
             Email = request.Email,
             Code = VerificationCodeGenerator.Generate(),

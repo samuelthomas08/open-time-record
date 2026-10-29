@@ -2,7 +2,10 @@
   <img src="docs/assets/banner.png" alt="OTR logo" />
 </p>
 
-<p align="center">OTR is a self-hosted time tracking and team management app: employees clock their work time (including breaks) against projects, while Superadmins manage users, roles, teams, and a fine-grained permission system.</p>
+<p align="center">
+  <strong>Open Time Record (OTR)</strong> is a self-hosted time tracking and team management app.<br />
+  Employees clock their work time (including breaks) against projects, while Superadmins manage users, roles, teams, and a fine-grained permission system.
+</p>
 
 <p align="center">
   <img src="docs/assets/dashboard.png" alt="OTR dashboard: live timer, today/week/month stats, a GitHub-style activity heatmap, and admin overview tiles" width="800" />
@@ -12,35 +15,83 @@
 
 ## Contents
 
-- [Self-Hosting](#self-hosting)
-- [Accounts, Access & Invitations](#accounts-access--invitations)
-- [Time Tracking](#time-tracking)
-- [Breaks](#breaks)
-- [Correction Requests](#correction-requests)
-- [Dashboard](#dashboard)
-- [Profile](#profile)
-- [User Management](#user-management)
-- [Roles & Permissions](#roles--permissions)
-- [Teams](#teams)
-- [Projects](#projects)
-- [Settings](#settings)
-- [General Experience](#general-experience)
+- [Highlights](#highlights)
+- [Quick start](#quick-start)
+- [Self-hosting](#self-hosting)
+- [How it works](#how-it-works)
+- [Documentation](#documentation)
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Repository layout](#repository-layout)
+- [Contributing](#contributing)
+- [License](#license)
 
----
+## Highlights
 
-## Self-Hosting
+- **One-click clock** with live elapsed time in the header and the browser tab title
+- **Breaks** that are subtracted automatically, with an optional mandatory reason
+- **Correction requests** reviewed by a Superadmin instead of silently editing history
+- **Roles with fine-grained permissions** (None / Read / Write / Admin per resource)
+- **Reports and dashboard** with a GitHub-style activity heatmap and target-vs-actual trends
+- **Invitations** by e-mail or shareable link
+- **Self-hosted**: one `docker compose up`, automatic HTTPS, your data stays on your server
+
+## Quick start
+
+The fastest way to try OTR is the Docker stack.
+
+```bash
+git clone <this repository>
+cd open-time-record/deploy
+cp .env.example .env        # set POSTGRES_PASSWORD and JWT_KEY (openssl rand -base64 48)
+docker compose up -d --build
+```
+
+Open <http://localhost> and register. **The first person to register becomes Superadmin.**
+
+Want to run the code directly for development? See the [Development guide](docs/development.md).
+
+## Self-hosting
 
 OTR ships as a ready-to-run Docker stack: Postgres, backend, frontend, and a [Caddy](https://caddyserver.com/) reverse proxy that terminates TLS.
 
 1. Download `docker-compose.yml` and `.env.example` from the [latest release](../../releases/latest).
-2. `cp .env.example .env` and fill in the values (a strong `JWT_KEY`, database credentials, and — if you have a domain pointed at this server — `DOMAIN=your.domain` for automatic HTTPS; leave it as-is for local HTTP access).
-3. `docker compose up -d`.
+2. Run `cp .env.example .env` and fill in the values: a strong `JWT_KEY`, the database credentials and, if a domain points at this server, `DOMAIN=your.domain` for automatic HTTPS. Leave `DOMAIN` as it is for local HTTP access.
+3. Run `docker compose up -d`.
 
-The first person to register on the running instance automatically becomes Superadmin. Database migrations are applied automatically on startup — no manual step needed.
+The first person to register on the running instance automatically becomes Superadmin. Database migrations are applied automatically on startup, so no manual step is needed.
 
-New releases are cut by tagging a commit on the `release` branch (`vX.Y.Z`) and pushing it; CI builds and publishes the images and attaches the compose files to a new [GitHub Release](../../releases).
+New releases are cut by tagging a commit on the `release` branch (`vX.Y.Z`) and pushing it. CI builds and publishes the images and attaches the compose files to a new [GitHub Release](../../releases).
 
-## Accounts, Access & Invitations
+More details, including updates and backups, are in the [Deployment guide](docs/deployment.md).
+
+## How it works
+
+```mermaid
+flowchart LR
+    Browser([Browser]) --> Caddy["Caddy<br/>TLS + routing"]
+    Caddy -->|"/"| Frontend["Angular frontend<br/>(server-side rendered)"]
+    Caddy -->|"/api/*"| Backend["ASP.NET Core API"]
+    Backend --> DB[("PostgreSQL")]
+    Backend -.-> SMTP[/"SMTP server<br/>(optional)"/]
+```
+
+A single reverse proxy exposes the frontend and the API on one origin. The backend authenticates requests with JSON Web Tokens and checks the role-based permissions stored in the database. The TypeScript API client of the frontend is generated from the backend's OpenAPI document, so both sides always agree on request and response shapes. See [Architecture](docs/architecture.md) for the details.
+
+## Documentation
+
+| Document | What you will find |
+| --- | --- |
+| [Architecture](docs/architecture.md) | Components, request flow, code structure, start-up sequence |
+| [Data model](docs/data-model.md) | Entity relationship diagrams, life cycles of time entries and correction requests |
+| [Authentication and permissions](docs/authentication-and-permissions.md) | Registration and login flows, JWT, roles, permission levels, manager visibility |
+| [API reference](docs/api-reference.md) | All REST endpoints with their access requirements |
+| [Development guide](docs/development.md) | Local setup, commands, migrations, code conventions, troubleshooting |
+| [Deployment guide](docs/deployment.md) | Configuration, volumes, updates, backups, hardening checklist |
+
+## Features
+
+### Accounts, access and invitations
 
 - **Registration** with first/last name, email, and password. The **very first person ever to register** automatically becomes Superadmin and skips email verification.
 - **Email verification**: new accounts (without an invitation) receive a 6-digit code by email, valid for 24 hours; the code can be resent.
@@ -51,7 +102,7 @@ New releases are cut by tagging a commit on the `release` branch (`vX.Y.Z`) and 
   - The role, team, and manager from the invitation are applied to the new account automatically on registration; email verification is skipped in that case.
 - **Create a user manually** (Superadmin): set up an account, password included, with no invitation or verification step at all — gated by the fine-grained permission system rather than a hardcoded role check.
 
-## Time Tracking
+### Time Tracking
 
 - **Start/stop clock** for your own work time, always reachable from the header — the running time is counted live right there.
 - Attach a **project** and a **description** to the running or a past entry; both stay editable afterwards.
@@ -59,40 +110,40 @@ New releases are cut by tagging a commit on the `release` branch (`vX.Y.Z`) and 
 - Every entry's row shows its **net worked duration** (start to end, minus all breaks) as its own, prominent column.
 - The **browser tab title** shows the live elapsed time (`HH:mm`) while the clock is running.
 
-## Breaks
+### Breaks
 
 - While the clock is running, **start and end a break**, optionally with a reason.
 - Whether a break reason is **required** is a system-wide setting the admin controls (Settings → System).
 - Break time is automatically subtracted from worked time — live in the running display, in the duration column, and on the dashboard.
 - Stopping a time entry while a break is still open automatically closes that break too.
 
-## Correction Requests
+### Correction Requests
 
 - File a **correction request** on one of your own completed time entries through a dialog (new start/end time, reason).
 - The dialog shows the relevant **manager(s)** up front, resolved from your team membership, for context.
 - Superadmins see every open request and can **approve or reject** it.
 
-## Dashboard
+### Dashboard
 
 - Personal **Today / This Week / This Month** stats (net worked time, updating live).
 - A **GitHub-style activity heatmap** covering the last ~12 months: one cell per day, color intensity scaled to hours worked, with month/weekday labels, a per-day tooltip, and a legend.
 - **Superadmins** additionally see an admin overview: counts of open correction requests, open invitations, and active users, each linking to the relevant page.
 
-## Profile
+### Profile
 
 *(Settings → Profile)*
 
 - Manage your own **profile picture** (PNG/JPEG/GIF/WEBP, 2 MB limit, verified server-side against the actual file signature) — everyone can only upload or remove their own.
 - Two independent admin controls sit on top of this: whether the feature is available **at all** (Settings → System), and, per role, whether that role may **self-manage** its own picture (Settings → Roles). The latter lets an organization keep pictures on display while sourcing them centrally (e.g. synced in from an external directory) rather than letting people upload their own.
 
-## User Management
+### User Management
 
 *(Settings → Users, Superadmin)*
 
 - List every user with their status; **activate/deactivate** accounts.
 - **Assign or remove roles and teams** per user.
 
-## Roles & Permissions
+### Roles & Permissions
 
 *(Settings → Roles, Superadmin)*
 
@@ -101,28 +152,58 @@ New releases are cut by tagging a commit on the `release` branch (`vX.Y.Z`) and 
   Time Entries, Projects, Users, Rules, Roles, Teams, Correction Requests, Invitations, SMTP Settings, App Settings, Clients, Project Tasks, Tags, Work Schedules, Leave Types, Leave Requests, Leave Balances, Public Holidays, Notifications, Audit Log, Profile Picture.
 - The Superadmin role automatically holds Admin on every resource.
 
-## Teams
+### Teams
 
 *(Settings → Teams, Superadmin)*
 
 - Create teams with a short name, a display name, and an assigned **manager**; activate/deactivate them.
 - That manager is suggested throughout the app — when inviting or manually creating a user, and in correction requests.
 
-## Projects
+### Projects
 
 *(Settings → Projects, Superadmin)*
 
 - Create projects with a short name and a display name, and activate/deactivate them; they then appear as choices in time tracking.
 
-## Settings
+### Settings
 
 - **Appearance**: light/dark theme, follows the system preference by default, switchable any time — available to everyone.
 - **SMTP** (Superadmin): configure your own mail server for verification and invitation emails (host, port, TLS/SSL, credentials, sender). The password is stored encrypted.
 - **System** (Superadmin): toggle profile pictures app-wide, toggle whether a break reason is required.
 - **Information**: product name, version, and a short description of OTR — available to everyone.
 
-## General Experience
+### General Experience
 
 - Creating anything (a role, team, project, invitation, user, correction request, break) goes through a focused dialog rather than an inline form.
 - Settings live in their own area with sidebar navigation; administrative pages are only visible to Superadmins.
 - A user menu in the top right (avatar, picture or initials) holds your name, email, links to your profile and to Settings, and sign-out.
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | Angular 21 (standalone components, signals, SSR), Tailwind CSS 4, [Zard UI](https://zardui.com), Chart.js |
+| Backend | ASP.NET Core 10, Entity Framework Core 10, MailKit, JWT bearer authentication |
+| Database | PostgreSQL 17 |
+| Infrastructure | Docker Compose, Caddy 2, GitHub Actions |
+
+## Repository layout
+
+```text
+open-time-record/
+├── deploy/             Docker Compose file, Caddyfile, .env.example
+├── docs/               Project documentation and images
+├── otr-backend/        ASP.NET Core solution
+│   └── otr-backend/    Controllers, Services, Entities, Dtos, Migrations
+├── otr-frontend/       Angular application
+│   ├── openapi/        OpenAPI contract produced by the backend build (committed)
+│   └── src/app/        pages, components, services (api-client is generated, not committed)
+└── .github/workflows/  API client generation and release pipelines
+```
+
+## Contributing
+
+
+## License
+
+OTR is licensed under the [GNU Affero General Public License v3.0](LICENSE.md).

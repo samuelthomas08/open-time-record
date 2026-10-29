@@ -3,6 +3,10 @@ using otr_backend.Models;
 
 namespace otr_backend.Data;
 
+/// <summary>
+/// Entity Framework Core context for the whole application. Conventions are used wherever
+/// possible; <see cref="OnModelCreating"/> only configures what EF cannot infer on its own.
+/// </summary>
 public class OtrDbContext : DbContext
 {
     public OtrDbContext(DbContextOptions<OtrDbContext> options)
@@ -76,6 +80,7 @@ public class OtrDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
     }
 
+    // Core entities
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Team> Teams { get; set; }
@@ -86,12 +91,14 @@ public class OtrDbContext : DbContext
     public DbSet<UserRoleMapping> UserRoleMappings { get; set; }
     public DbSet<UserTeamMapping> UserTeamMappings { get; set; }
 
+    // Time tracking
     public DbSet<TimeEntryAuditLog> TimeEntryAuditLogs { get; set; }
     public DbSet<TimeEntryCorrectionRequest> TimeEntryCorrectionRequests { get; set; }
     public DbSet<Client> Clients { get; set; }
     public DbSet<ProjectMember> ProjectMembers { get; set; }
     public DbSet<WorkSchedule> WorkSchedules { get; set; }
 
+    // Projects, tagging and leave management
     public DbSet<ProjectTask> ProjectTasks { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<TimeEntryTagMapping> TimeEntryTagMappings { get; set; }
@@ -99,10 +106,12 @@ public class OtrDbContext : DbContext
     public DbSet<LeaveRequest> LeaveRequests { get; set; }
     public DbSet<LeaveBalance> LeaveBalances { get; set; }
     public DbSet<PublicHoliday> PublicHolidays { get; set; }
+    // Authentication and notifications
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
     public DbSet<Notification> Notifications { get; set; }
 
+    // Instance configuration and onboarding
     public DbSet<SmtpSettings> SmtpSettings { get; set; }
     public DbSet<AppSettings> AppSettings { get; set; }
     public DbSet<TimeEntryBreak> TimeEntryBreaks { get; set; }

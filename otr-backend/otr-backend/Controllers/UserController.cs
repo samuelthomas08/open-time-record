@@ -11,6 +11,7 @@ using otr_backend.Services;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages users, their role and team assignments, and profile pictures.</summary>
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -30,18 +31,20 @@ public class UserController : ControllerBase
         PermissionService permissionService,
         ManagedUsersService managedUsersService)
     {
-        this._context = context;
-        this._environment = environment;
-        this._permissionService = permissionService;
-        this._managedUsersService = managedUsersService;
+        _context = context;
+        _environment = environment;
+        _permissionService = permissionService;
+        _managedUsersService = managedUsersService;
     }
 
+    /// <summary>Returns all users.</summary>
     [HttpGet]
     public async Task<ActionResult<List<User>>> GetUsers()
     {
         return Ok(await _context.Users.ToListAsync());
     }
 
+    /// <summary>Creates an already verified account. Requires <c>Admin</c> permission on the users resource.</summary>
     [HttpPost]
     public async Task<ActionResult<User>> CreateUser(CreateUserRequest request)
     {
@@ -73,7 +76,7 @@ public class UserController : ControllerBase
             return BadRequest("Der ausgewählte Vorgesetzte existiert nicht.");
         }
 
-        var user = new User
+        User user = new User
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -100,6 +103,7 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
     }
 
+    /// <summary>Returns a single user.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUserById(uint id)
     {
@@ -112,6 +116,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    /// <summary>Returns a user together with all records that reference them.</summary>
     [HttpGet("{id}/enriched")]
     public async Task<ActionResult<EnrichedUserDto>> GetEnrichedUser(uint id)
     {
@@ -210,24 +215,44 @@ public class UserController : ControllerBase
         });
     }
 
+    /// <summary>Updates name, e-mail address and active flag of a user.</summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<User>> UpdateUser(uint id, User updatedUser)
     {
+        // Users may edit themselves; changing anybody else requires write permission on users.
+        bool isSelf = id == User.GetUserId();
+        if (!isSelf && !await _permissionService.HasPermissionAsync(User.GetUserId(), PermissionResource.Users, PermissionLevel.Write))
+        {
+            return Forbid();
+        }
+
         User? user = await _context.Users.FindAsync(id);
         if (user == null)
         {
             return NotFound();
         }
 
+        bool emailTaken = await _context.Users.AnyAsync(u => u.Email == updatedUser.Email && u.Id != id);
+        if (emailTaken)
+        {
+            return Conflict("Diese E-Mail-Adresse wird bereits verwendet.");
+        }
+
         user.FirstName = updatedUser.FirstName;
         user.LastName = updatedUser.LastName;
         user.Email = updatedUser.Email;
-        user.IsActive = updatedUser.IsActive;
+
+        // Only administrators may (de)activate accounts; otherwise a user could re-enable themselves.
+        if (!isSelf)
+        {
+            user.IsActive = updatedUser.IsActive;
+        }
 
         await _context.SaveChangesAsync();
         return Ok(user);
     }
 
+    /// <summary>Returns the roles assigned to a user.</summary>
     [HttpGet("{id}/roles")]
     public async Task<ActionResult<List<Role>>> GetUserRoles(uint id)
     {
@@ -239,8 +264,7 @@ public class UserController : ControllerBase
         return Ok(roles);
     }
 
-    // Gated to Superadmin for now as a stand-in until real hierarchy-aware
-    // permissions (see MVP plan, Stufe 2) replace this simple role check.
+    /// <summary>Assigns a role to a user. Restricted to Superadmins for now, as a stand-in until hierarchy-aware permissions replace this simple role check.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPost("{id}/roles/{roleId}")]
     public async Task<ActionResult> AssignRole(uint id, uint roleId)
@@ -263,6 +287,7 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>Removes a role from a user.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpDelete("{id}/roles/{roleId}")]
     public async Task<IActionResult> RemoveRole(uint id, uint roleId)
@@ -279,6 +304,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Returns the teams a user belongs to.</summary>
     [HttpGet("{id}/teams")]
     public async Task<ActionResult<List<Team>>> GetUserTeams(uint id)
     {
@@ -290,6 +316,7 @@ public class UserController : ControllerBase
         return Ok(teams);
     }
 
+    /// <summary>Adds a user to a team.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPost("{id}/teams/{teamId}")]
     public async Task<ActionResult> AssignTeam(uint id, uint teamId)
@@ -312,6 +339,7 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>Removes a user from a team.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpDelete("{id}/teams/{teamId}")]
     public async Task<IActionResult> RemoveTeam(uint id, uint teamId)
@@ -328,6 +356,7 @@ public class UserController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Returns the users the caller is responsible for (all other users for Superadmins).</summary>
     [HttpGet("managed")]
     public async Task<ActionResult<List<User>>> GetManagedUsers()
     {
@@ -342,6 +371,7 @@ public class UserController : ControllerBase
         return Ok(await _context.Users.Where(u => managedIds.Contains(u.Id)).ToListAsync());
     }
 
+    /// <summary>Returns the caller's effective permission level per resource.</summary>
     [HttpGet("me/permissions")]
     public async Task<ActionResult<List<RolePermissionDto>>> GetMyPermissions()
     {
@@ -349,6 +379,7 @@ public class UserController : ControllerBase
         return Ok(effective.Select(kv => new RolePermissionDto { Resource = kv.Key, Level = kv.Value }).ToList());
     }
 
+    /// <summary>Stores a new profile picture for the caller, replacing any previous one. Requires the feature toggle and <c>Write</c> permission on the profile picture resource.</summary>
     [HttpPost("{id}/profile-picture")]
     public async Task<ActionResult<User>> UploadProfilePicture(uint id, IFormFile file)
     {
@@ -419,6 +450,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    /// <summary>Removes the caller's profile picture.</summary>
     [HttpDelete("{id}/profile-picture")]
     public async Task<ActionResult<User>> DeleteProfilePicture(uint id)
     {

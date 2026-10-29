@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -6,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages teams.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class TeamController : ControllerBase
@@ -14,15 +16,17 @@ public class TeamController : ControllerBase
 
     public TeamController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all teams.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Team>>> GetTeams()
     {
         return Ok(await _context.Teams.ToListAsync());
     }
 
+    /// <summary>Returns a single team or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Team>> GetTeamById(uint id)
     {
@@ -35,6 +39,7 @@ public class TeamController : ControllerBase
         return Ok(team);
     }
 
+    /// <summary>Looks up a team by its technical name.</summary>
     [HttpGet("by-name/{teamName}")]
     public async Task<ActionResult<Team>> GetTeamByTeamName(string teamName)
     {
@@ -47,6 +52,7 @@ public class TeamController : ControllerBase
         return Ok(team);
     }
 
+    /// <summary>Creates a new team.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPost]
     public async Task<ActionResult<Team>> AddTeam(Team team)
@@ -61,6 +67,7 @@ public class TeamController : ControllerBase
         return CreatedAtAction(nameof(GetTeamById), new { id = team.Id }, team);
     }
 
+    /// <summary>Updates name, display name, manager and active flag of a team.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<Team>> UpdateTeam(uint id, Team team)

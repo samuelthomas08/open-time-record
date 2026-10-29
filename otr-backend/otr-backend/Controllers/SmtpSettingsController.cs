@@ -7,6 +7,7 @@ using otr_backend.Dtos;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Superadmin-only configuration of the outgoing mail server.</summary>
 [Authorize(Roles = "Superadmin")]
 [Route("api/[controller]")]
 [ApiController]
@@ -21,6 +22,7 @@ public class SmtpSettingsController : ControllerBase
         _protector = dataProtectionProvider.CreateProtector("SmtpSettings.Password");
     }
 
+    /// <summary>Returns the mail server configuration without the password.</summary>
     [HttpGet]
     public async Task<ActionResult<SmtpSettingsResponse>> GetSettings()
     {
@@ -33,6 +35,7 @@ public class SmtpSettingsController : ControllerBase
         return Ok(ToResponse(settings));
     }
 
+    /// <summary>Saves the mail server configuration. The password is encrypted before storage and only replaced if a new one is supplied.</summary>
     [HttpPut]
     public async Task<ActionResult<SmtpSettingsResponse>> UpdateSettings(SmtpSettingsRequest request)
     {
@@ -68,6 +71,7 @@ public class SmtpSettingsController : ControllerBase
         return Ok(ToResponse(settings));
     }
 
+    /// <summary>Maps the stored settings to the API response, omitting the password.</summary>
     private static SmtpSettingsResponse ToResponse(Models.SmtpSettings settings)
     {
         return new SmtpSettingsResponse

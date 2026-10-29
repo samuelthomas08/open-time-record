@@ -1,5 +1,6 @@
-﻿namespace otr_backend.Models;
+namespace otr_backend.Models;
 
+/// <summary>Join entity: a user belonging to a team.</summary>
 public class UserTeamMapping
 {
     public uint TeamId { get; set; }

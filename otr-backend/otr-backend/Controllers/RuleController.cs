@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages time tracking rules.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class RuleController : ControllerBase
@@ -13,15 +16,17 @@ public class RuleController : ControllerBase
 
     public RuleController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all rules.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Rule>>> GetRules()
     {
         return Ok(await _context.Rules.ToListAsync());
     }
 
+    /// <summary>Returns a single rule or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Rule>> GetRuleById(uint id)
     {
@@ -34,6 +39,7 @@ public class RuleController : ControllerBase
         return Ok(rule);
     }
 
+    /// <summary>Creates a new rule.</summary>
     [HttpPost]
     public async Task<ActionResult<Rule>> AddRule(Rule rule)
     {

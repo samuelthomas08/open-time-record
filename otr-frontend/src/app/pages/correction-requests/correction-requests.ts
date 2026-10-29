@@ -17,6 +17,7 @@ const PENDING = 0;
 const APPROVED = 1;
 const REJECTED = 2;
 
+/** Lists correction requests; Superadmins can approve or reject pending ones. */
 @Component({
   selector: 'app-correction-requests',
   imports: [DatePipe, NgIcon, ZardBadgeComponent, ZardButtonComponent, ZardPopoverImports, ZardTableImports],
@@ -36,11 +37,12 @@ export class CorrectionRequests implements OnInit {
 
   protected readonly mineRequests = signal<CorrectionRequestDto[]>([]);
   protected readonly pendingRequests = signal<CorrectionRequestDto[]>([]);
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly actionPending = signal(false);
-  protected readonly profilePicturesEnabled = signal(false);
+  protected readonly actionPending = signal<boolean>(false);
+  protected readonly profilePicturesEnabled = signal<boolean>(false);
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.loadMine();
     this.loadSettings();
@@ -50,11 +52,13 @@ export class CorrectionRequests implements OnInit {
     }
   }
 
+  /** Builds the absolute URL of the reviewer's profile picture, or `null` if there is none. */
   protected reviewerPictureSrc(request: CorrectionRequestDto): string | null {
     const url = request.reviewedByProfilePictureUrl;
     return url ? `${this.apiConfiguration.rootUrl}${url}` : null;
   }
 
+  /** Approves a request. */
   protected approve(request: CorrectionRequestDto): Promise<void> {
     return this.review(() =>
       this.correctionRequestService.apiTimeEntryCorrectionRequestIdApprovePut$Json({
@@ -63,6 +67,7 @@ export class CorrectionRequests implements OnInit {
     );
   }
 
+  /** Opens the dialog for rejecting a request. */
   protected reject(request: CorrectionRequestDto): void {
     this.dialogService.create({
       zTitle: 'Antrag ablehnen',
@@ -79,6 +84,7 @@ export class CorrectionRequests implements OnInit {
     });
   }
 
+  /** Runs a review action and refreshes both lists afterwards. */
   private async review(action: () => Promise<unknown>): Promise<void> {
     this.actionPending.set(true);
     this.error.set(null);
@@ -93,6 +99,7 @@ export class CorrectionRequests implements OnInit {
     }
   }
 
+  /** Fetches the own correction requests. */
   private async loadMine(): Promise<void> {
     this.loading.set(true);
 
@@ -107,6 +114,7 @@ export class CorrectionRequests implements OnInit {
     }
   }
 
+  /** Fetches the correction requests awaiting review. */
   private async loadPending(): Promise<void> {
     try {
       this.pendingRequests.set(
@@ -117,6 +125,7 @@ export class CorrectionRequests implements OnInit {
     }
   }
 
+  /** Fetches the instance-wide settings this page depends on. */
   private async loadSettings(): Promise<void> {
     try {
       const settings = await this.appSettingsService.apiAppSettingsGet$Json();

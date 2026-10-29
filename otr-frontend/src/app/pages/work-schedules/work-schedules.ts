@@ -7,12 +7,8 @@ import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components/card';
 import { ZardDialogService } from '@/shared/components/dialog';
 import { ZardTableImports } from '@/shared/components/table';
+import { toDateOnly } from '@/utils/date.utils';
 import { ManageWorkScheduleDialog } from './manage-work-schedule-dialog/manage-work-schedule-dialog';
-
-/** Truncates to the local calendar day so a schedule created later today (e.g. 14:32) still counts as "from today", not "from the future". */
-function toDateOnly(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-}
 
 function isCurrentSchedule(schedule: WorkSchedule): boolean {
   const today = toDateOnly(new Date());
@@ -50,6 +46,7 @@ export function weeklyTotal(schedule: WorkSchedule): number {
   );
 }
 
+/** Shows target working hours per user and opens dialogs to manage schedule periods. */
 @Component({
   selector: 'app-work-schedules',
   imports: [DatePipe, ZardButtonComponent, ZardCardComponent, ZardCardContentComponent, ZardTableImports],
@@ -65,7 +62,7 @@ export class WorkSchedules implements OnInit {
   protected readonly schedules = signal<WorkSchedule[]>([]);
   protected readonly mySchedules = signal<WorkSchedule[]>([]);
   protected readonly myUser = signal<User | null>(null);
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
   protected readonly dayColumns = DAY_COLUMNS;
 
@@ -87,32 +84,39 @@ export class WorkSchedules implements OnInit {
     return map;
   });
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.load();
   }
 
+  /** Returns all schedule periods of a user, newest first. */
   protected schedulesFor(user: User): WorkSchedule[] {
     return this.schedulesByUserId().get(Number(user.id)) ?? [];
   }
 
+  /** Returns the schedule period that is in effect today, if any. */
   protected currentScheduleFor(user: User): WorkSchedule | null {
     return this.schedulesFor(user).find(isCurrentSchedule) ?? null;
   }
 
   protected readonly weeklyTotal = weeklyTotal;
 
+  /** Returns the target hours of one weekday. */
   protected dayValue(schedule: WorkSchedule, column: DayColumn): number {
     return Number(schedule[column.key] ?? 0);
   }
 
+  /** Counts the weekdays with target hours above zero. */
   protected workingDaysCount(schedule: WorkSchedule): number {
     return this.dayColumns.filter(col => this.dayValue(schedule, col) > 0).length;
   }
 
+  /** Whether the column is today's weekday. */
   protected isToday(column: DayColumn): boolean {
     return new Date().getDay() === column.dayIndex;
   }
 
+  /** CSS classes for a weekday tile, highlighting working days and today. */
   protected dayTileClasses(schedule: WorkSchedule, column: DayColumn): string {
     const base = 'flex flex-col items-center gap-1 rounded-lg border py-3';
     const fill = this.dayValue(schedule, column) > 0 ? 'border-border bg-muted/30' : 'border-dashed border-border/60';
@@ -120,6 +124,7 @@ export class WorkSchedules implements OnInit {
     return `${base} ${fill} ${today}`.trim();
   }
 
+  /** Opens the schedule dialog for a user (or for oneself). */
   protected manage(user: User, own = false): void {
     this.dialogService.create({
       zTitle: `Arbeitszeit — ${user.firstName} ${user.lastName}`,
@@ -130,6 +135,7 @@ export class WorkSchedules implements OnInit {
     });
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
 

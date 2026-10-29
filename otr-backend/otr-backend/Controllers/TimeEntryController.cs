@@ -10,6 +10,7 @@ using otr_backend.Services;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Time tracking: starting and stopping timers, breaks, and managing entries. Users may only modify their own entries.</summary>
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -20,16 +21,18 @@ public class TimeEntryController : ControllerBase
 
     public TimeEntryController(OtrDbContext context, ManagedUsersService managedUsersService)
     {
-        this._context = context;
-        this._managedUsersService = managedUsersService;
+        _context = context;
+        _managedUsersService = managedUsersService;
     }
 
+    /// <summary>Returns all time entries.</summary>
     [HttpGet]
     public async Task<ActionResult<List<TimeEntry>>> GetTimeEntries()
     {
         return Ok(await _context.TimeEntries.ToListAsync());
     }
 
+    /// <summary>Returns the caller's entries including breaks, newest first.</summary>
     [HttpGet("mine")]
     public async Task<ActionResult<List<TimeEntry>>> GetMyTimeEntries()
     {
@@ -43,6 +46,7 @@ public class TimeEntryController : ControllerBase
         return Ok(entries);
     }
 
+    /// <summary>Returns the entries of all users the caller manages (everyone but themselves for Superadmins), newest first.</summary>
     [HttpGet("team")]
     public async Task<ActionResult<List<TimeEntry>>> GetTeamTimeEntries()
     {
@@ -64,6 +68,7 @@ public class TimeEntryController : ControllerBase
         return Ok(entries);
     }
 
+    /// <summary>Returns a single entry including its breaks.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<TimeEntry>> GetTimeEntryById(uint id)
     {
@@ -78,6 +83,7 @@ public class TimeEntryController : ControllerBase
         return Ok(timeEntry);
     }
 
+    /// <summary>Creates a time entry for the caller from the supplied values.</summary>
     [HttpPost]
     public async Task<ActionResult<TimeEntry>> AddTimeEntry(TimeEntry timeEntry)
     {
@@ -86,11 +92,15 @@ public class TimeEntryController : ControllerBase
             return BadRequest();
         }
 
+        // Entries can only be created for oneself, regardless of the user id in the request body.
+        timeEntry.UserId = User.GetUserId();
+
         _context.TimeEntries.Add(timeEntry);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetTimeEntryById), new { id = timeEntry.Id }, timeEntry);
     }
 
+    /// <summary>Starts a timer for the caller. Only one timer may run at a time.</summary>
     [HttpPost("start")]
     public async Task<ActionResult<TimeEntry>> StartTimeEntry()
     {
@@ -103,7 +113,7 @@ public class TimeEntryController : ControllerBase
             return Conflict("Es läuft bereits ein Zeiteintrag.");
         }
 
-        var timeEntry = new TimeEntry
+        TimeEntry timeEntry = new TimeEntry
         {
             UserId = userId,
             StartTime = DateTime.UtcNow,
@@ -116,6 +126,7 @@ public class TimeEntryController : ControllerBase
         return CreatedAtAction(nameof(GetTimeEntryById), new { id = timeEntry.Id }, timeEntry);
     }
 
+    /// <summary>Stops the caller's running timer and ends a running break, if any.</summary>
     [HttpPost("{id}/stop")]
     public async Task<ActionResult<TimeEntry>> StopTimeEntry(uint id)
     {
@@ -151,6 +162,7 @@ public class TimeEntryController : ControllerBase
         return Ok(timeEntry);
     }
 
+    /// <summary>Starts a break on a running entry. Only one break may run at a time.</summary>
     [HttpPost("{id}/breaks")]
     public async Task<ActionResult<TimeEntryBreak>> StartBreak(uint id, BreakStartRequest request)
     {
@@ -183,7 +195,7 @@ public class TimeEntryController : ControllerBase
             return BadRequest("Bitte einen Grund für die Pause angeben.");
         }
 
-        var timeEntryBreak = new TimeEntryBreak
+        TimeEntryBreak timeEntryBreak = new TimeEntryBreak
         {
             TimeEntryId = id,
             StartTime = DateTime.UtcNow,
@@ -195,6 +207,7 @@ public class TimeEntryController : ControllerBase
         return Ok(timeEntryBreak);
     }
 
+    /// <summary>Ends a running break.</summary>
     [HttpPut("{id}/breaks/{breakId}/stop")]
     public async Task<ActionResult<TimeEntryBreak>> StopBreak(uint id, uint breakId)
     {
@@ -227,6 +240,7 @@ public class TimeEntryController : ControllerBase
         return Ok(timeEntryBreak);
     }
 
+    /// <summary>Changes project, task and description of one of the caller's entries.</summary>
     [HttpPut("{id}")]
     public async Task<ActionResult<TimeEntry>> UpdateTimeEntry(uint id, TimeEntryUpdateRequest request)
     {
@@ -251,6 +265,7 @@ public class TimeEntryController : ControllerBase
         return Ok(timeEntry);
     }
 
+    /// <summary>Deletes one of the caller's entries.</summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTimeEntry(uint id)
     {

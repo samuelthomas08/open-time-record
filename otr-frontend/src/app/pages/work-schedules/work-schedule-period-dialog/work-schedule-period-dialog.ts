@@ -32,6 +32,7 @@ const DAY_FIELDS: DayField[] = [
   { key: 'sundayHours', label: 'So', defaultHours: 0 },
 ];
 
+/** Dialog for creating or editing one schedule period. */
 @Component({
   selector: 'app-work-schedule-period-dialog',
   imports: [FormsModule, ZardButtonComponent, ZardDatePickerComponent, ZardFieldImports, ZardInputComponent],
@@ -44,17 +45,17 @@ export class WorkSchedulePeriodDialog {
 
   protected readonly dayFields = DAY_FIELDS;
   protected readonly maxHoursPerDay = MAX_HOURS_PER_DAY;
-  protected readonly submitting = signal(false);
+  protected readonly submitting = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
   protected readonly isEditing = this.data.existing != null;
 
-  protected mondayHours = 0;
-  protected tuesdayHours = 0;
-  protected wednesdayHours = 0;
-  protected thursdayHours = 0;
-  protected fridayHours = 0;
-  protected saturdayHours = 0;
-  protected sundayHours = 0;
+  protected mondayHours: number = 0;
+  protected tuesdayHours: number = 0;
+  protected wednesdayHours: number = 0;
+  protected thursdayHours: number = 0;
+  protected fridayHours: number = 0;
+  protected saturdayHours: number = 0;
+  protected sundayHours: number = 0;
   protected effectiveFrom: Date | null = new Date();
   protected effectiveTo: Date | null = null;
 
@@ -73,18 +74,22 @@ export class WorkSchedulePeriodDialog {
     }
   }
 
+  /** Returns the target hours of one weekday. */
   protected dayValue(field: DayField): number {
     return this[field.key];
   }
 
+  /** Updates the hours of one weekday in the form. */
   protected setDayValue(field: DayField, value: number): void {
     this[field.key] = Math.min(MAX_HOURS_PER_DAY, Math.max(0, value || 0));
   }
 
+  /** Sum of the weekly target hours currently entered. */
   protected formTotal(): number {
     return this.dayFields.reduce((sum, field) => sum + (this.dayValue(field) || 0), 0);
   }
 
+  /** Validates and submits the form, closing the dialog on success. */
   protected async submit(): Promise<void> {
     if (!this.effectiveFrom) {
       this.error.set('Bitte ein Startdatum angeben.');
@@ -123,6 +128,7 @@ export class WorkSchedulePeriodDialog {
     }
   }
 
+  /** Closes the dialog without saving. */
   protected cancel(): void {
     this.dialogRef.close();
   }

@@ -7,6 +7,10 @@ using otr_backend.Data;
 
 namespace otr_backend.Services;
 
+/// <summary>
+/// <see cref="IEmailSender"/> that delivers mail through the SMTP server configured by a Superadmin.
+/// The stored password is decrypted with Data Protection just before connecting.
+/// </summary>
 public class SmtpEmailSender : IEmailSender
 {
     private readonly OtrDbContext _context;
@@ -18,12 +22,13 @@ public class SmtpEmailSender : IEmailSender
         _protector = dataProtectionProvider.CreateProtector("SmtpSettings.Password");
     }
 
+    /// <inheritdoc />
     public async Task SendAsync(string toEmail, string subject, string body)
     {
         Models.SmtpSettings? settings = await _context.SmtpSettings.FirstOrDefaultAsync();
         if (settings == null)
         {
-            throw new InvalidOperationException("SMTP ist noch nicht konfiguriert.");
+            throw new InvalidOperationException("SMTP has not been configured yet.");
         }
 
         MimeMessage message = new();

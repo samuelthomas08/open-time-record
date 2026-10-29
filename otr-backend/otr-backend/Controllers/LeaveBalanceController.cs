@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages yearly leave entitlements.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class LeaveBalanceController : ControllerBase
@@ -13,15 +16,17 @@ public class LeaveBalanceController : ControllerBase
 
     public LeaveBalanceController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all leave balances.</summary>
     [HttpGet]
     public async Task<ActionResult<List<LeaveBalance>>> GetLeaveBalances()
     {
         return Ok(await _context.LeaveBalances.ToListAsync());
     }
 
+    /// <summary>Returns a single leave balance or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<LeaveBalance>> GetLeaveBalanceById(uint id)
     {
@@ -34,6 +39,7 @@ public class LeaveBalanceController : ControllerBase
         return Ok(leaveBalance);
     }
 
+    /// <summary>Creates a new leave balance.</summary>
     [HttpPost]
     public async Task<ActionResult<LeaveBalance>> AddLeaveBalance(LeaveBalance leaveBalance)
     {

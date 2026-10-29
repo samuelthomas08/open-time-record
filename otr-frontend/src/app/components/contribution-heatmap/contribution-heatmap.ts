@@ -79,6 +79,7 @@ function levelFor(hours: number): 0 | 1 | 2 | 3 | 4 {
   return 4;
 }
 
+/** GitHub-style heatmap showing worked hours per day over the last year. */
 @Component({
   selector: 'app-contribution-heatmap',
   templateUrl: './contribution-heatmap.html',
@@ -149,18 +150,22 @@ export class ContributionHeatmap {
 
   protected readonly activeDays = computed(() => Object.values(this.hoursByDate()).filter(hours => hours > 0).length);
 
+  /** Month label to show above a week column, or an empty string. */
   protected monthLabelAt(weekIndex: number): string {
     return this.monthLabels().find(label => label.weekIndex === weekIndex)?.label ?? '';
   }
 
+  /** CSS class of a heatmap cell depending on its intensity. */
   protected cellClass(day: HeatmapDay): string {
     return day.isPadding ? 'invisible' : LEVEL_CLASSES[day.level];
   }
 
+  /** CSS class of a legend swatch. */
   protected legendClass(level: number): string {
     return LEVEL_CLASSES[level];
   }
 
+  /** Tooltip text of a heatmap cell. */
   protected cellTitle(day: HeatmapDay): string | null {
     if (day.isPadding) {
       return null;

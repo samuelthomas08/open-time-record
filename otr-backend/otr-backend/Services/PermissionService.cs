@@ -5,6 +5,7 @@ using otr_backend.Models;
 
 namespace otr_backend.Services;
 
+/// <summary>Evaluates the role-based permissions of a user.</summary>
 public class PermissionService
 {
     private readonly OtrDbContext _context;
@@ -19,16 +20,19 @@ public class PermissionService
     /// <paramref name="resource"/>. Superadmin already holds Admin on every resource via the
     /// startup seed, so it needs no separate bypass here.
     /// </summary>
+    /// <param name="userId">Id of the user to check.</param>
+    /// <param name="resource">The resource access is requested for.</param>
+    /// <param name="minLevel">The lowest acceptable level.</param>
     public async Task<bool> HasPermissionAsync(uint userId, PermissionResource resource, PermissionLevel minLevel)
     {
-        List<PermissionLevel> levels = await _context.UserRoleMappings
+        List<PermissionLevel> grantedLevels = await _context.UserRoleMappings
             .Where(m => m.UserId == userId)
             .SelectMany(m => _context.RolePermissionMappings
                 .Where(p => p.RoleId == m.RoleId && p.Resource == resource)
                 .Select(p => p.Level))
             .ToListAsync();
 
-        return levels.Any(level => level >= minLevel);
+        return grantedLevels.Any(level => level >= minLevel);
     }
 
     /// <summary>
@@ -37,13 +41,13 @@ public class PermissionService
     /// </summary>
     public async Task<Dictionary<PermissionResource, PermissionLevel>> GetEffectivePermissionsAsync(uint userId)
     {
-        List<RolePermissionMapping> mappings = await _context.UserRoleMappings
+        List<RolePermissionMapping> roleMappings = await _context.UserRoleMappings
             .Where(m => m.UserId == userId)
             .SelectMany(m => _context.RolePermissionMappings.Where(p => p.RoleId == m.RoleId))
             .ToListAsync();
 
         Dictionary<PermissionResource, PermissionLevel> result = new();
-        foreach (RolePermissionMapping mapping in mappings)
+        foreach (RolePermissionMapping mapping in roleMappings)
         {
             if (!result.TryGetValue(mapping.Resource, out PermissionLevel existing) || mapping.Level > existing)
             {

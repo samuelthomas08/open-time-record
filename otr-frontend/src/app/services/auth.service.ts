@@ -18,6 +18,7 @@ export interface CurrentUser {
 
 export type RegisterOutcome = { needsActivation: true } | { needsActivation: false };
 
+/** Holds the login session (token and basic user data), persists it in `localStorage` and wraps the generated auth API client. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly generatedAuthService = inject(GeneratedAuthService);
@@ -34,6 +35,7 @@ export class AuthService {
   /** Shared across the header avatar and the Profile settings page, so editing it in one place updates the other live. */
   readonly profilePictureUrl = this.profilePictureUrlSignal.asReadonly();
 
+  /** Updates the shared profile picture URL. */
   setProfilePictureUrl(url: string | null): void {
     this.profilePictureUrlSignal.set(url);
   }
@@ -42,11 +44,13 @@ export class AuthService {
     return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
   }
 
+  /** Logs in and stores the session. */
   async login(email: string, password: string): Promise<void> {
     const response = await this.generatedAuthService.apiAuthLoginPost$Json({ body: { email, password } });
     this.persistSession(response);
   }
 
+  /** Registers an account; stores the session right away if no e-mail verification is needed. */
   async register(firstName: string, lastName: string, email: string, password: string, invitationCode?: string): Promise<RegisterOutcome> {
     const response = await this.generatedAuthService.apiAuthRegisterPost$Json({
       body: { firstName, lastName, email, password, invitationCode: invitationCode || null },
@@ -60,15 +64,18 @@ export class AuthService {
     return { needsActivation: true };
   }
 
+  /** Confirms the e-mail address with the emailed code and stores the session. */
   async activate(email: string, code: string): Promise<void> {
     const response = await this.generatedAuthService.apiAuthActivatePost$Json({ body: { email, code } });
     this.persistSession(response);
   }
 
+  /** Asks the backend to send a new verification code. */
   async resendActivation(email: string): Promise<void> {
     await this.generatedAuthService.apiAuthResendActivationPost$Json({ body: { email } });
   }
 
+  /** Ends the session and returns to the login page. */
   logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem(TOKEN_KEY);
@@ -79,6 +86,7 @@ export class AuthService {
     this.router.navigateByUrl('/login');
   }
 
+  /** Stores token and user data in memory and `localStorage`. */
   private persistSession(response: AuthResponse): void {
     const user: CurrentUser = {
       userId: Number(response.userId),
@@ -95,6 +103,7 @@ export class AuthService {
     this.currentUserSignal.set(user);
   }
 
+  /** Restores the user from `localStorage`, or `null` if unavailable. */
   private readStoredUser(): CurrentUser | null {
     if (!this.isBrowser) {
       return null;

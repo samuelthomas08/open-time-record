@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages leave types.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class LeaveTypeController : ControllerBase
@@ -13,15 +16,17 @@ public class LeaveTypeController : ControllerBase
 
     public LeaveTypeController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all leave types.</summary>
     [HttpGet]
     public async Task<ActionResult<List<LeaveType>>> GetLeaveTypes()
     {
         return Ok(await _context.LeaveTypes.ToListAsync());
     }
 
+    /// <summary>Returns a single leave type or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<LeaveType>> GetLeaveTypeById(uint id)
     {
@@ -34,6 +39,7 @@ public class LeaveTypeController : ControllerBase
         return Ok(leaveType);
     }
 
+    /// <summary>Creates a new leave type.</summary>
     [HttpPost]
     public async Task<ActionResult<LeaveType>> AddLeaveType(LeaveType leaveType)
     {
