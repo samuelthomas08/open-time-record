@@ -4,9 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "prestart": "npm run generate:api-client",
     "build": "ng build",
+    "prebuild": "npm run generate:api-client",
     "watch": "ng build --watch --configuration development",
+    "prewatch": "npm run generate:api-client",
     "test": "ng test",
+    "pretest": "npm run generate:api-client",
     "generate:api-client": "ng-openapi-gen --config ng-openapi-gen.json",
     "serve:ssr:otr-frontend": "node dist/otr-frontend/server/server.mjs"
   },

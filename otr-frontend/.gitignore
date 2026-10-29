@@ -29,8 +29,8 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
-# Generated OpenAPI spec (regenerated on backend build, not the generated client itself)
-/openapi
+# Generated API client (built from openapi/openapi.json by `npm run generate:api-client`)
+/src/app/api-client
 
 # Miscellaneous
 /.angular/cache
