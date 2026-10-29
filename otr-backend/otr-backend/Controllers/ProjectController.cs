@@ -6,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages projects that time can be booked against.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ProjectController : ControllerBase
@@ -14,15 +16,17 @@ public class ProjectController : ControllerBase
 
     public ProjectController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all projects.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Project>>> GetProjects()
     {
         return Ok(await _context.Projects.ToListAsync());
     }
 
+    /// <summary>Returns a single project or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Project>> GetProjectById(uint id)
     {
@@ -35,6 +39,7 @@ public class ProjectController : ControllerBase
         return Ok(project);
     }
 
+    /// <summary>Creates a new project.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPost]
     public async Task<ActionResult<Project>> AddProject(Project project)
@@ -49,6 +54,7 @@ public class ProjectController : ControllerBase
         return CreatedAtAction(nameof(GetProjectById), new { id = project.Id }, project);
     }
 
+    /// <summary>Updates name, display name and active flag of a project.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<Project>> UpdateProject(uint id, Project project)

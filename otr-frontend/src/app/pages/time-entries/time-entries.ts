@@ -15,9 +15,9 @@ import { ZardSelectImports } from '@/shared/components/select';
 import { ZardTableImports } from '@/shared/components/table';
 import { RequestCorrectionDialog } from './request-correction-dialog/request-correction-dialog';
 import { StartBreakDialog } from './start-break-dialog/start-break-dialog';
+import { TIME_ENTRY_STATUS_RUNNING as RUNNING, netWorkedMs } from '@/utils/time-entry.utils';
 
-const RUNNING = 0;
-
+/** Page for starting/stopping the timer, managing breaks and reviewing or editing the own time entries. */
 @Component({
   selector: 'app-time-entries',
   imports: [
@@ -45,17 +45,18 @@ export class TimeEntries implements OnInit {
 
   protected readonly timeEntries = signal<TimeEntry[]>([]);
   protected readonly projects = signal<Project[]>([]);
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly actionPending = signal(false);
+  protected readonly actionPending = signal<boolean>(false);
   protected readonly editingId = signal<number | null>(null);
-  protected readonly breakReasonRequired = signal(false);
+  protected readonly breakReasonRequired = signal<boolean>(false);
 
-  protected runningProjectId = '';
-  protected runningDescription = '';
-  protected editProjectId = '';
-  protected editDescription = '';
+  protected runningProjectId: string = '';
+  protected runningDescription: string = '';
+  protected editProjectId: string = '';
+  protected editDescription: string = '';
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.timerService.ensureLoaded().then(() => this.syncRunningForm());
     this.load();
@@ -63,6 +64,7 @@ export class TimeEntries implements OnInit {
     this.loadBreakSettings();
   }
 
+  /** Starts the timer. */
   protected async start(): Promise<void> {
     this.actionPending.set(true);
     this.error.set(null);
@@ -78,6 +80,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Stops the timer. */
   protected async stop(): Promise<void> {
     this.actionPending.set(true);
     this.error.set(null);
@@ -92,6 +95,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Saves project and description of the running entry. */
   protected async saveRunning(): Promise<void> {
     const running = this.timerService.runningEntry();
     if (!running?.id) {
@@ -102,16 +106,19 @@ export class TimeEntries implements OnInit {
     await this.timerService.refresh();
   }
 
+  /** Switches a row into edit mode. */
   protected startEdit(entry: TimeEntry): void {
     this.editingId.set(Number(entry.id));
     this.editProjectId = entry.projectId != null ? String(entry.projectId) : '';
     this.editDescription = entry.description ?? '';
   }
 
+  /** Leaves edit mode without saving. */
   protected cancelEdit(): void {
     this.editingId.set(null);
   }
 
+  /** Saves project and description of the edited entry. */
   protected async saveEdit(entry: TimeEntry): Promise<void> {
     await this.updateEntry(Number(entry.id), this.editProjectId, this.editDescription);
     this.editingId.set(null);
@@ -121,6 +128,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Deletes an entry. */
   protected async deleteEntry(entry: TimeEntry): Promise<void> {
     this.actionPending.set(true);
     this.error.set(null);
@@ -139,6 +147,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Opens the dialog for starting a break. */
   protected openStartBreakDialog(): void {
     this.dialogService.create({
       zTitle: 'Pause starten',
@@ -149,6 +158,7 @@ export class TimeEntries implements OnInit {
     });
   }
 
+  /** Ends the running break. */
   protected async stopBreak(): Promise<void> {
     this.actionPending.set(true);
     this.error.set(null);
@@ -168,17 +178,10 @@ export class TimeEntries implements OnInit {
       return '—';
     }
 
-    const grossMs = new Date(entry.endTime).getTime() - new Date(entry.startTime).getTime();
-    const breakMs = (entry.breaks ?? []).reduce((sum, b) => {
-      if (!b.endTime || !b.startTime) {
-        return sum;
-      }
-      return sum + (new Date(b.endTime).getTime() - new Date(b.startTime).getTime());
-    }, 0);
-
-    return this.formatHhMm(Math.max(0, grossMs - breakMs));
+    return this.formatHhMm(netWorkedMs(entry));
   }
 
+  /** Opens the dialog for requesting a correction of an entry. */
   protected requestCorrection(entry: TimeEntry): void {
     this.dialogService.create({
       zTitle: 'Korrektur beantragen',
@@ -189,6 +192,7 @@ export class TimeEntries implements OnInit {
     });
   }
 
+  /** Resolves a project id to its display name, or an em dash if unknown. */
   protected projectName(projectId: TimeEntry['projectId']): string {
     if (projectId == null) {
       return '—';
@@ -198,6 +202,7 @@ export class TimeEntries implements OnInit {
     return project?.projectDisplayName ?? '—';
   }
 
+  /** Persists project and description of an entry and reloads the list. */
   private async updateEntry(id: number, projectId: string, description: string): Promise<void> {
     this.actionPending.set(true);
     this.error.set(null);
@@ -215,12 +220,14 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Copies the running entry's values into the inline edit form. */
   private syncRunningForm(): void {
     const running = this.timerService.runningEntry();
     this.runningProjectId = running?.projectId != null ? String(running.projectId) : '';
     this.runningDescription = running?.description ?? '';
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
 
@@ -235,6 +242,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Fetches projects so their names can be shown; failures are not critical. */
   private async loadProjects(): Promise<void> {
     try {
       this.projects.set(await this.projectService.apiProjectGet$Json());
@@ -243,6 +251,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Fetches whether a break reason is mandatory. */
   private async loadBreakSettings(): Promise<void> {
     try {
       const settings = await this.appSettingsService.apiAppSettingsGet$Json();
@@ -252,6 +261,7 @@ export class TimeEntries implements OnInit {
     }
   }
 
+  /** Formats milliseconds as `h:mm`. */
   private formatHhMm(ms: number): string {
     const totalMinutes = Math.floor(ms / 60000);
     const hours = Math.floor(totalMinutes / 60);

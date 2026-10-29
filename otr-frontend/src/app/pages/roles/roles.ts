@@ -44,6 +44,7 @@ const PERMISSION_LEVELS: ReadonlyArray<{ value: number; label: string }> = [
   { value: 3, label: 'Admin' },
 ];
 
+/** Lists roles and lets Superadmins edit the permission level each role has per resource. */
 @Component({
   selector: 'app-roles',
   imports: [FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardInputComponent, ZardSelectImports, ZardTableImports],
@@ -55,9 +56,9 @@ export class Roles implements OnInit {
 
   protected readonly authService = inject(AuthService);
   protected readonly roles = signal<Role[]>([]);
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly searchTerm = signal('');
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly filteredRoles = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -73,14 +74,16 @@ export class Roles implements OnInit {
   protected readonly PERMISSION_LEVELS = PERMISSION_LEVELS;
 
   protected readonly expandedRoleId = signal<number | null>(null);
-  protected readonly permissionsLoading = signal(false);
-  protected readonly savingPermissions = signal(false);
+  protected readonly permissionsLoading = signal<boolean>(false);
+  protected readonly savingPermissions = signal<boolean>(false);
   protected permissionLevels: Record<number, string> = {};
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.load();
   }
 
+  /** Opens the dialog for creating a new entry and reloads the list on success. */
   protected openCreateDialog(): void {
     this.dialogService.create({
       zTitle: 'Rolle anlegen',
@@ -91,11 +94,13 @@ export class Roles implements OnInit {
     });
   }
 
+  /** Flips the active flag and reloads the list. */
   protected async toggleActive(role: Role): Promise<void> {
     await this.roleService.apiRoleIdPut$Json({ id: role.id!, body: { ...role, isActive: !role.isActive } });
     await this.load();
   }
 
+  /** Expands or collapses the detail panel of a row and loads its data. */
   protected async toggleExpand(role: Role): Promise<void> {
     const id = Number(role.id);
 
@@ -108,6 +113,7 @@ export class Roles implements OnInit {
     await this.loadPermissions(id);
   }
 
+  /** Saves the edited permission levels of a role. */
   protected async savePermissions(role: Role): Promise<void> {
     this.savingPermissions.set(true);
     this.error.set(null);
@@ -125,6 +131,7 @@ export class Roles implements OnInit {
     }
   }
 
+  /** Fetches the permissions of one role. */
   private async loadPermissions(roleId: number): Promise<void> {
     this.permissionsLoading.set(true);
     this.permissionLevels = Object.fromEntries(PERMISSION_RESOURCES.map(r => [r.value, '0']));
@@ -143,6 +150,7 @@ export class Roles implements OnInit {
     }
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
     try {

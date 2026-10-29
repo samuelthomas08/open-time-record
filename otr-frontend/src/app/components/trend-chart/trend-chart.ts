@@ -16,6 +16,7 @@ export interface TrendPoint {
 const GREEN = '#00a63e';
 const BLUE = '#155dfc';
 
+/** Line chart (Chart.js) of worked hours with an optional target line. */
 @Component({
   selector: 'app-trend-chart',
   imports: [],
@@ -42,10 +43,12 @@ export class TrendChart implements OnDestroy {
     });
   }
 
+  /** Releases resources held by the component. */
   ngOnDestroy(): void {
     this.chart?.destroy();
   }
 
+  /** (Re)draws the chart for the given points and theme. */
   private render(points: TrendPoint[], dark: boolean, formatter: (value: number) => string): void {
     const canvas = this.canvasRef()?.nativeElement;
     if (!canvas || points.length === 0) {

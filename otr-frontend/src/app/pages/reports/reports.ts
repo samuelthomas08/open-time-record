@@ -8,6 +8,8 @@ import { TrendChart, type TrendPoint } from '@/components/trend-chart/trend-char
 import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components/card';
 import { ZardSelectImports } from '@/shared/components/select';
+import { formatHours, isoWeekNumber, startOfWeek, toDateKey, toDateOnly } from '@/utils/date.utils';
+import { MS_PER_HOUR, netWorkedMs } from '@/utils/time-entry.utils';
 
 type Period = 7 | 30 | 90 | 365;
 
@@ -31,53 +33,8 @@ const DAY_KEYS = [
   'saturdayHours',
 ] as const;
 
-function formatHours(hours: number): string {
-  const totalMinutes = Math.round(hours * 60);
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${h}:${m.toString().padStart(2, '0')} Std.`;
-}
-
-function toDateKey(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-function toDateOnly(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-}
-
-function startOfWeek(date: Date): Date {
-  const result = new Date(date);
-  const mondayIndex = (result.getDay() + 6) % 7;
-  result.setDate(result.getDate() - mondayIndex);
-  result.setHours(0, 0, 0, 0);
-  return result;
-}
-
-function isoWeekNumber(date: Date): number {
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7));
-  const firstThursday = new Date(target.getFullYear(), 0, 4);
-  const diff = target.getTime() - firstThursday.getTime();
-  return 1 + Math.round(diff / (7 * 24 * 3600 * 1000));
-}
-
 function netHours(entry: TimeEntry): number {
-  if (!entry.startTime || !entry.endTime) {
-    return 0;
-  }
-
-  const breakMs = (entry.breaks ?? []).reduce((sum, b) => {
-    if (!b.startTime || !b.endTime) {
-      return sum;
-    }
-    return sum + (new Date(b.endTime).getTime() - new Date(b.startTime).getTime());
-  }, 0);
-
-  const grossMs = new Date(entry.endTime).getTime() - new Date(entry.startTime).getTime();
-  return Math.max(0, grossMs - breakMs) / 3_600_000;
+  return netWorkedMs(entry) / MS_PER_HOUR;
 }
 
 /** The target hours for one specific weekday, from whichever schedule period was effective on that date. */
@@ -113,6 +70,7 @@ function sumTargetHoursForWeek(monday: Date, schedules: WorkSchedule[]): number 
   return sum;
 }
 
+/** Charts of worked hours per employee, per project and over time compared to the target hours. */
 @Component({
   selector: 'app-reports',
   imports: [FormsModule, BarChart, TrendChart, ZardButtonComponent, ZardCardComponent, ZardCardContentComponent, ZardSelectImports],
@@ -126,7 +84,7 @@ export class Reports implements OnInit {
 
   protected readonly authService = inject(AuthService);
 
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
 
   protected readonly managedUsers = signal<User[]>([]);
@@ -142,7 +100,7 @@ export class Reports implements OnInit {
   protected readonly trendValueFormatter = (value: number): string => formatHours(value);
 
   protected readonly canPickEmployee = computed(() => this.managedUsers().length > 0);
-  protected readonly selectedUserId = signal('');
+  protected readonly selectedUserId = signal<string>('');
 
   protected readonly selectedEmployeeName = computed(() => {
     if (this.canPickEmployee()) {
@@ -253,18 +211,22 @@ export class Reports implements OnInit {
     });
   });
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.load();
   }
 
+  /** Selects the reporting period. */
   protected setPeriod(value: Period): void {
     this.period.set(value);
   }
 
+  /** Selects the employee whose trend is shown. */
   protected setSelectedUserId(id: string): void {
     this.selectedUserId.set(id);
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
 

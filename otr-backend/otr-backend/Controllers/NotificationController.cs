@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages in-app notifications.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class NotificationController : ControllerBase
@@ -13,15 +16,17 @@ public class NotificationController : ControllerBase
 
     public NotificationController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all notifications.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Notification>>> GetNotifications()
     {
         return Ok(await _context.Notifications.ToListAsync());
     }
 
+    /// <summary>Returns a single notification or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Notification>> GetNotificationById(uint id)
     {
@@ -34,6 +39,7 @@ public class NotificationController : ControllerBase
         return Ok(notification);
     }
 
+    /// <summary>Creates a new notification.</summary>
     [HttpPost]
     public async Task<ActionResult<Notification>> AddNotification(Notification notification)
     {

@@ -7,6 +7,7 @@ import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardFieldImports } from '@/shared/components/field';
 import { ZardInputComponent } from '@/shared/components/input';
 
+/** Page where users confirm their e-mail address with the emailed code. */
 @Component({
   selector: 'app-activate',
   imports: [FormsModule, RouterLink, ZardButtonComponent, ZardFieldImports, ZardInputComponent],
@@ -18,11 +19,12 @@ export class Activate {
   private readonly route = inject(ActivatedRoute);
 
   protected email = this.route.snapshot.queryParamMap.get('email') ?? '';
-  protected code = '';
-  protected readonly loading = signal(false);
+  protected code: string = '';
+  protected readonly loading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
   protected readonly info = signal<string | null>(null);
 
+  /** Submits the form and navigates on success. */
   protected async onSubmit(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
@@ -38,6 +40,7 @@ export class Activate {
     }
   }
 
+  /** Requests a new verification code. */
   protected async resend(): Promise<void> {
     this.error.set(null);
     this.info.set(null);

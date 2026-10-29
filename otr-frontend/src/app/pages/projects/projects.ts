@@ -9,6 +9,7 @@ import { ZardInputComponent } from '@/shared/components/input';
 import { ZardTableImports } from '@/shared/components/table';
 import { CreateProjectDialog } from './create-project-dialog/create-project-dialog';
 
+/** Lists projects and lets authorized users create and (de)activate them. */
 @Component({
   selector: 'app-projects',
   imports: [FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardInputComponent, ZardTableImports],
@@ -19,9 +20,9 @@ export class Projects implements OnInit {
   private readonly dialogService = inject(ZardDialogService);
 
   protected readonly projects = signal<Project[]>([]);
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly searchTerm = signal('');
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly filteredProjects = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -34,10 +35,12 @@ export class Projects implements OnInit {
     );
   });
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.load();
   }
 
+  /** Opens the dialog for creating a new entry and reloads the list on success. */
   protected openCreateDialog(): void {
     this.dialogService.create({
       zTitle: 'Projekt anlegen',
@@ -48,11 +51,13 @@ export class Projects implements OnInit {
     });
   }
 
+  /** Flips the active flag and reloads the list. */
   protected async toggleActive(project: Project): Promise<void> {
     await this.projectService.apiProjectIdPut$Json({ id: project.id!, body: { ...project, isActive: !project.isActive } });
     await this.load();
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
     try {

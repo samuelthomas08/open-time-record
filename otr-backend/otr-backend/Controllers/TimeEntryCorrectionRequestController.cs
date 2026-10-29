@@ -9,6 +9,7 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Correction requests for time entries and their review by a Superadmin.</summary>
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -18,15 +19,17 @@ public class TimeEntryCorrectionRequestController : ControllerBase
 
     public TimeEntryCorrectionRequestController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all correction requests.</summary>
     [HttpGet]
     public async Task<ActionResult<List<TimeEntryCorrectionRequest>>> GetTimeEntryCorrectionRequests()
     {
         return Ok(await _context.TimeEntryCorrectionRequests.ToListAsync());
     }
 
+    /// <summary>Returns the caller's own correction requests, newest first.</summary>
     [HttpGet("mine")]
     public async Task<ActionResult<List<CorrectionRequestDto>>> GetMyCorrectionRequests()
     {
@@ -40,6 +43,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
         return Ok(requests);
     }
 
+    /// <summary>Returns all requests awaiting review, newest first.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpGet("pending")]
     public async Task<ActionResult<List<CorrectionRequestDto>>> GetPendingCorrectionRequests()
@@ -74,6 +78,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
             ReviewedByProfilePictureUrl = r.ReviewedByUser != null ? r.ReviewedByUser.ProfilePictureUrl : null,
         };
 
+    /// <summary>Returns a single correction request.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<TimeEntryCorrectionRequest>> GetTimeEntryCorrectionRequestById(uint id)
     {
@@ -86,6 +91,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
         return Ok(correctionRequest);
     }
 
+    /// <summary>Files a correction request for one of the caller's own entries. Only one pending request per entry is allowed.</summary>
     [HttpPost]
     public async Task<ActionResult<TimeEntryCorrectionRequest>> AddTimeEntryCorrectionRequest(CorrectionRequestCreateRequest request)
     {
@@ -108,7 +114,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
             return Conflict("Für diesen Eintrag läuft bereits ein Korrekturantrag.");
         }
 
-        var correctionRequest = new TimeEntryCorrectionRequest
+        TimeEntryCorrectionRequest correctionRequest = new TimeEntryCorrectionRequest
         {
             TimeEntryId = request.TimeEntryId,
             RequestedByUserId = userId,
@@ -124,6 +130,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
         return CreatedAtAction(nameof(GetTimeEntryCorrectionRequestById), new { id = correctionRequest.Id }, correctionRequest);
     }
 
+    /// <summary>Approves a request and applies the proposed times to the time entry.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}/approve")]
     public Task<ActionResult<TimeEntryCorrectionRequest>> Approve(uint id)
@@ -131,6 +138,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
         return Review(id, ApprovalStatus.Approved, applyToTimeEntry: true, note: null);
     }
 
+    /// <summary>Rejects a request, leaving the time entry unchanged.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut("{id}/reject")]
     public Task<ActionResult<TimeEntryCorrectionRequest>> Reject(uint id, ReviewNoteRequest body)
@@ -138,6 +146,7 @@ public class TimeEntryCorrectionRequestController : ControllerBase
         return Review(id, ApprovalStatus.Rejected, applyToTimeEntry: false, note: body.Note);
     }
 
+    /// <summary>Records the reviewer's decision on a pending request and optionally applies it to the time entry.</summary>
     private async Task<ActionResult<TimeEntryCorrectionRequest>> Review(uint id, ApprovalStatus status, bool applyToTimeEntry, string? note)
     {
         TimeEntryCorrectionRequest? request = await _context.TimeEntryCorrectionRequests

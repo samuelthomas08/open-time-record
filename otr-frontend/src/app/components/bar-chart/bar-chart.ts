@@ -6,6 +6,7 @@ export interface BarChartDatum {
   displayValue: string;
 }
 
+/** Horizontal bar chart rendered with plain HTML/CSS. */
 @Component({
   selector: 'app-bar-chart',
   imports: [],
@@ -17,10 +18,12 @@ export class BarChart {
 
   protected readonly maxValue = computed(() => Math.max(1, ...this.data().map(d => d.value)));
 
+  /** Bar width in percent relative to the largest value. */
   protected widthPct(value: number): number {
     return Math.max(0, (value / this.maxValue()) * 100);
   }
 
+  /** Tooltip text of a bar. */
   protected barTitle(item: BarChartDatum): string {
     return `${item.label}: ${item.displayValue}`;
   }

@@ -7,31 +7,10 @@ import { TimerService } from '@/services/timer.service';
 import { ContributionHeatmap } from '@/components/contribution-heatmap/contribution-heatmap';
 import { Reports } from '@/pages/reports/reports';
 import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components/card';
+import { formatHours, startOfMonth, startOfWeek, toDateKey } from '@/utils/date.utils';
+import { MS_PER_HOUR, netWorkedMs } from '@/utils/time-entry.utils';
 
-function toDateKey(date: Date): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
-
-function startOfWeek(date: Date): Date {
-  const result = new Date(date);
-  const mondayIndex = (result.getDay() + 6) % 7;
-  result.setDate(result.getDate() - mondayIndex);
-  result.setHours(0, 0, 0, 0);
-  return result;
-}
-
-function startOfMonth(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
-}
-
-function formatHours(hours: number): string {
-  const totalMinutes = Math.round(hours * 60);
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${h}:${m.toString().padStart(2, '0')} Std.`;
-}
-
+/** Landing page: live timer, hour statistics, activity heatmap and (for Superadmins) admin overview tiles. */
 @Component({
   selector: 'app-dashboard',
   imports: [RouterLink, ContributionHeatmap, Reports, ZardCardComponent, ZardCardContentComponent],
@@ -52,7 +31,7 @@ export class Dashboard implements OnInit {
     month: 'long',
     year: 'numeric',
   });
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly historicalHoursByDate = signal<Record<string, number>>({});
 
   protected readonly pendingCorrectionsCount = signal<number | null>(null);
@@ -85,6 +64,7 @@ export class Dashboard implements OnInit {
 
   protected readonly formatHours = formatHours;
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.timerService.ensureLoaded();
     this.load();
@@ -94,6 +74,7 @@ export class Dashboard implements OnInit {
     }
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
 
@@ -107,6 +88,7 @@ export class Dashboard implements OnInit {
     }
   }
 
+  /** Fetches the counters shown in the admin overview tiles. */
   private async loadAdminStats(): Promise<void> {
     try {
       const [pending, invitations, users] = await Promise.all([
@@ -122,6 +104,7 @@ export class Dashboard implements OnInit {
     }
   }
 
+  /** Sums the net worked hours per local calendar day. */
   private aggregateByDate(entries: TimeEntry[]): Record<string, number> {
     const result: Record<string, number> = {};
 
@@ -130,21 +113,14 @@ export class Dashboard implements OnInit {
         continue; // the currently-running entry has no end yet — handled live via TimerService instead
       }
 
-      const key = toDateKey(new Date(entry.startTime));
-      const breakMs = (entry.breaks ?? []).reduce((sum, b) => {
-        if (!b.endTime || !b.startTime) {
-          return sum;
-        }
-        return sum + (new Date(b.endTime).getTime() - new Date(b.startTime).getTime());
-      }, 0);
-
-      const netMs = new Date(entry.endTime).getTime() - new Date(entry.startTime).getTime() - breakMs;
-      result[key] = (result[key] ?? 0) + Math.max(0, netMs) / 3_600_000;
+      const key: string = toDateKey(new Date(entry.startTime));
+      result[key] = (result[key] ?? 0) + netWorkedMs(entry) / MS_PER_HOUR;
     }
 
     return result;
   }
 
+  /** Sums the hours of all days on or after the given date. */
   private sumSince(hoursByDate: Record<string, number>, since: Date): number {
     let sum = 0;
     for (const [key, hours] of Object.entries(hoursByDate)) {
@@ -155,6 +131,7 @@ export class Dashboard implements OnInit {
     return sum;
   }
 
+  /** Converts an `hh:mm:ss` string into fractional hours. */
   private elapsedToHours(elapsed: string): number {
     const [hours, minutes, seconds] = elapsed.split(':').map(Number);
     return hours + minutes / 60 + seconds / 3600;

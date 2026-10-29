@@ -13,6 +13,7 @@ export interface RequestCorrectionDialogData {
   timeEntry: TimeEntry;
 }
 
+/** Dialog for requesting a correction of the start and/or end time of an entry. */
 @Component({
   selector: 'app-request-correction-dialog',
   imports: [FormsModule, ZardButtonComponent, ZardDatePickerComponent, ZardFieldImports, ZardInputComponent],
@@ -25,16 +26,16 @@ export class RequestCorrectionDialog implements OnInit {
   private readonly dialogRef = inject(ZardDialogRef<RequestCorrectionDialog>);
   private readonly data = injectDialogData<RequestCorrectionDialogData>();
 
-  protected readonly submitting = signal(false);
+  protected readonly submitting = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly loadingManagers = signal(true);
+  protected readonly loadingManagers = signal<boolean>(true);
   protected readonly managerNames = signal<string[]>([]);
 
-  protected reason = '';
+  protected reason: string = '';
   protected proposedStartDate: Date | null = null;
-  protected proposedStartTimeOfDay = '';
+  protected proposedStartTimeOfDay: string = '';
   protected proposedEndDate: Date | null = null;
-  protected proposedEndTimeOfDay = '';
+  protected proposedEndTimeOfDay: string = '';
 
   constructor() {
     const entry = this.data.timeEntry;
@@ -47,10 +48,12 @@ export class RequestCorrectionDialog implements OnInit {
     }
   }
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.loadManagers();
   }
 
+  /** Validates and submits the form, closing the dialog on success. */
   protected async submit(): Promise<void> {
     this.submitting.set(true);
     this.error.set(null);
@@ -72,6 +75,7 @@ export class RequestCorrectionDialog implements OnInit {
     }
   }
 
+  /** Closes the dialog without saving. */
   protected cancel(): void {
     this.dialogRef.close();
   }
@@ -117,6 +121,7 @@ export class RequestCorrectionDialog implements OnInit {
     return combined.toISOString();
   }
 
+  /** Splits an ISO timestamp into a local date and a `HH:mm` string. */
   private splitIsoIntoDateAndTime(iso: string): [Date, string] {
     const date = new Date(iso);
     const pad = (n: number) => String(n).padStart(2, '0');

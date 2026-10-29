@@ -9,6 +9,7 @@ import { ZardCardComponent, ZardCardContentComponent } from '@/shared/components
 const PROFILE_PICTURE_RESOURCE = 20;
 const WRITE_LEVEL = 2;
 
+/** Settings page for the own profile and profile picture. */
 @Component({
   selector: 'app-settings-profile',
   imports: [ZardButtonComponent, ZardCardComponent, ZardCardContentComponent],
@@ -24,11 +25,11 @@ export class SettingsProfile implements OnInit {
 
   private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly loadError = signal<string | null>(null);
-  protected readonly profilePicturesEnabled = signal(false);
-  protected readonly canEditPicture = signal(false);
-  protected readonly uploading = signal(false);
+  protected readonly profilePicturesEnabled = signal<boolean>(false);
+  protected readonly canEditPicture = signal<boolean>(false);
+  protected readonly uploading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
 
   protected readonly fullName = computed(() => {
@@ -46,15 +47,18 @@ export class SettingsProfile implements OnInit {
     return url ? `${this.apiConfiguration.rootUrl}${url}` : null;
   });
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.load();
   }
 
+  /** Opens the file picker. */
   protected triggerFileInput(): void {
     this.error.set(null);
     this.fileInput().nativeElement.click();
   }
 
+  /** Uploads the chosen file as profile picture. */
   protected async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -78,6 +82,7 @@ export class SettingsProfile implements OnInit {
     }
   }
 
+  /** Deletes the profile picture. */
   protected async removePicture(): Promise<void> {
     const userId = this.user()?.userId;
     if (!userId) {
@@ -97,6 +102,7 @@ export class SettingsProfile implements OnInit {
     }
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
     this.loadError.set(null);

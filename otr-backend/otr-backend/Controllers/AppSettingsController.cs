@@ -6,6 +6,7 @@ using otr_backend.Dtos;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Reads and updates the instance-wide feature toggles.</summary>
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
@@ -18,6 +19,7 @@ public class AppSettingsController : ControllerBase
         _context = context;
     }
 
+    /// <summary>Returns the feature toggles; both are off if nothing was saved yet.</summary>
     [HttpGet]
     public async Task<ActionResult<AppSettingsResponse>> GetSettings()
     {
@@ -25,6 +27,7 @@ public class AppSettingsController : ControllerBase
         return Ok(ToResponse(settings));
     }
 
+    /// <summary>Saves the feature toggles, creating the settings row on first use.</summary>
     [Authorize(Roles = "Superadmin")]
     [HttpPut]
     public async Task<ActionResult<AppSettingsResponse>> UpdateSettings(AppSettingsRequest request)
@@ -43,6 +46,7 @@ public class AppSettingsController : ControllerBase
         return Ok(ToResponse(settings));
     }
 
+    /// <summary>Maps the stored settings to the API response, defaulting missing values to <c>false</c>.</summary>
     private static AppSettingsResponse ToResponse(Models.AppSettings? settings)
     {
         return new AppSettingsResponse

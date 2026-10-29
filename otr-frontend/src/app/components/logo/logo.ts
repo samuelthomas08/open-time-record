@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 
+/** Application logo. */
 @Component({
   selector: 'app-logo',
   templateUrl: './logo.html',

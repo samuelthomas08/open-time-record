@@ -9,17 +9,21 @@ using otr_backend.Models;
 using otr_backend.Services;
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ---------------------------------------------------------------------------
+// Service registration
+// ---------------------------------------------------------------------------
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// Generates the OpenAPI document that the frontend's API client is generated from.
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<OtrDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+// Only the Angular dev server needs CORS; in production Caddy serves frontend and API from one origin.
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
 builder.Services.AddCors(options =>
 {
@@ -37,9 +41,11 @@ builder.Services.AddSingleton<JwtTokenService>();
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
 builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+// Authorization helpers: role permission lookup and manager -> managed users resolution.
 builder.Services.AddScoped<PermissionService>();
 builder.Services.AddScoped<ManagedUsersService>();
 
+// Stateless JWT authentication: issuer, audience, lifetime and signature are all validated.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -60,7 +66,7 @@ builder.Services.AddAuthorization();
 // UseStaticFiles() needs wwwroot to physically exist before the app starts serving.
 Directory.CreateDirectory(Path.Combine(builder.Environment.WebRootPath ?? Path.Combine(builder.Environment.ContentRootPath, "wwwroot"), "profile-pictures"));
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Ensure the Superadmin role exists with full permissions before serving any requests.
 // The first person to register gets assigned to it (see AuthController.Register).
@@ -69,7 +75,11 @@ var app = builder.Build();
 // reflect over routes, without a real database connection available.
 app.Lifetime.ApplicationStarted.Register(() => _ = SeedSuperadminRoleAsync(app.Services));
 
-// Configure the HTTP request pipeline.
+// ---------------------------------------------------------------------------
+// HTTP request pipeline
+// ---------------------------------------------------------------------------
+
+// Interactive API documentation is only exposed during development.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -80,6 +90,7 @@ else
     app.UseHttpsRedirection();
 }
 
+// Serves uploaded profile pictures from wwwroot.
 app.UseStaticFiles();
 app.UseCors(FrontendCorsPolicy);
 
@@ -90,6 +101,11 @@ app.MapControllers();
 
 app.Run();
 
+/// <summary>
+/// Applies pending database migrations, then makes sure the Superadmin role exists and holds
+/// <see cref="PermissionLevel.Admin"/> on every <see cref="PermissionResource"/>.
+/// </summary>
+/// <param name="services">The root service provider used to create a dedicated scope.</param>
 static async Task SeedSuperadminRoleAsync(IServiceProvider services)
 {
     using IServiceScope scope = services.CreateScope();

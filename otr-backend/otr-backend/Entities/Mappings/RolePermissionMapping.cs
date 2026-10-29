@@ -1,7 +1,8 @@
-﻿using otr_backend.Enums;
+using otr_backend.Enums;
 
 namespace otr_backend.Models;
 
+/// <summary>Join entity: the access level a role grants on one resource.</summary>
 public class RolePermissionMapping
 {
     public uint RoleId { get; set; }

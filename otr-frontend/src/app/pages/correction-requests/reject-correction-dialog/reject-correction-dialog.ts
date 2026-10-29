@@ -12,6 +12,7 @@ export interface RejectCorrectionDialogData {
   onSuccess: () => void;
 }
 
+/** Dialog for rejecting a correction request with an optional note. */
 @Component({
   selector: 'app-reject-correction-dialog',
   imports: [FormsModule, ZardButtonComponent, ZardFieldImports, ZardInputComponent],
@@ -22,10 +23,11 @@ export class RejectCorrectionDialog {
   private readonly dialogRef = inject(ZardDialogRef<RejectCorrectionDialog>);
   protected readonly data = injectDialogData<RejectCorrectionDialogData>();
 
-  protected readonly submitting = signal(false);
+  protected readonly submitting = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
-  protected note = '';
+  protected note: string = '';
 
+  /** Validates and submits the form, closing the dialog on success. */
   protected async submit(): Promise<void> {
     this.submitting.set(true);
     this.error.set(null);
@@ -44,6 +46,7 @@ export class RejectCorrectionDialog {
     }
   }
 
+  /** Closes the dialog without saving. */
   protected cancel(): void {
     this.dialogRef.close();
   }

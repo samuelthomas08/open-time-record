@@ -5,6 +5,7 @@ const THEME_KEY = 'otr_theme';
 
 type Theme = 'light' | 'dark';
 
+/** Manages the light/dark theme and remembers the choice in `localStorage`; falls back to the OS preference. */
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -16,10 +17,12 @@ export class ThemeService {
     this.apply(this.darkSignal());
   }
 
+  /** Toggles between light and dark theme. */
   toggle(): void {
     this.setDark(!this.darkSignal());
   }
 
+  /** Sets the theme and persists the choice. */
   setDark(value: boolean): void {
     this.darkSignal.set(value);
     this.apply(value);
@@ -29,6 +32,7 @@ export class ThemeService {
     }
   }
 
+  /** Applies the theme to the document. */
   private apply(value: boolean): void {
     if (!this.isBrowser) {
       return;
@@ -37,6 +41,7 @@ export class ThemeService {
     document.documentElement.classList.toggle('dark', value);
   }
 
+  /** Determines the initial theme from storage or the OS preference. */
   private readInitial(): boolean {
     if (!this.isBrowser) {
       return false;

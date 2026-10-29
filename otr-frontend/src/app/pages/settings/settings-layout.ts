@@ -16,6 +16,7 @@ import {
 import { AuthService } from '@/services/auth.service';
 import { LayoutImports } from '@/shared/components/layout';
 
+/** Shell of the settings area: side navigation plus a router outlet for the active sub page. */
 @Component({
   selector: 'app-settings-layout',
   imports: [RouterLink, RouterLinkActive, RouterOutlet, LayoutImports, NgIcon],

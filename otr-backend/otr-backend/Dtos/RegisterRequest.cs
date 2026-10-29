@@ -1,10 +1,13 @@
 namespace otr_backend.Dtos;
 
+/// <summary>Request body for self-registration.</summary>
 public class RegisterRequest
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+
+    /// <summary>Code from an invitation; skips e-mail verification and applies the invited role.</summary>
     public string? InvitationCode { get; set; }
 }

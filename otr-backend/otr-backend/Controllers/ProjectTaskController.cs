@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages tasks within projects.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ProjectTaskController : ControllerBase
@@ -13,15 +16,17 @@ public class ProjectTaskController : ControllerBase
 
     public ProjectTaskController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all project tasks.</summary>
     [HttpGet]
     public async Task<ActionResult<List<ProjectTask>>> GetProjectTasks()
     {
         return Ok(await _context.ProjectTasks.ToListAsync());
     }
 
+    /// <summary>Returns a single project task or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<ProjectTask>> GetProjectTaskById(uint id)
     {
@@ -34,6 +39,7 @@ public class ProjectTaskController : ControllerBase
         return Ok(projectTask);
     }
 
+    /// <summary>Creates a new project task.</summary>
     [HttpPost]
     public async Task<ActionResult<ProjectTask>> AddProjectTask(ProjectTask projectTask)
     {

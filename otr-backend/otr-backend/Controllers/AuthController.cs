@@ -8,6 +8,7 @@ using otr_backend.Services;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Public endpoints for registration, e-mail verification and login.</summary>
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -24,6 +25,7 @@ public class AuthController : ControllerBase
         _emailSender = emailSender;
     }
 
+    /// <summary>Registers a new account. The first user ever becomes Superadmin and a valid invitation code skips e-mail verification; everyone else receives a verification code by e-mail.</summary>
     [HttpPost("register")]
     public async Task<ActionResult<RegisterResponse>> Register(RegisterRequest request)
     {
@@ -48,7 +50,7 @@ public class AuthController : ControllerBase
 
         bool autoVerified = isFirstUser || invitation != null;
 
-        var user = new User
+        User user = new User
         {
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -123,6 +125,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    /// <summary>Confirms the e-mail address with the emailed code and logs the user in.</summary>
     [HttpPost("activate")]
     public async Task<ActionResult<AuthResponse>> Activate(ActivateRequest request)
     {
@@ -154,10 +157,11 @@ public class AuthController : ControllerBase
         return Ok(await BuildAuthResponse(user));
     }
 
+    /// <summary>Sends a fresh verification code. Always answers with the same message so the endpoint cannot be used to find out which e-mail addresses are registered.</summary>
     [HttpPost("resend-activation")]
     public async Task<ActionResult<MessageResponse>> ResendActivation(ResendActivationRequest request)
     {
-        var genericResponse = new MessageResponse
+        MessageResponse genericResponse = new MessageResponse
         {
             Message = "Falls ein Konto mit dieser E-Mail existiert und noch nicht bestätigt ist, wurde ein neuer Code versendet.",
         };
@@ -193,6 +197,7 @@ public class AuthController : ControllerBase
         return Ok(genericResponse);
     }
 
+    /// <summary>Logs in with e-mail address and password and returns a JWT.</summary>
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
@@ -220,6 +225,7 @@ public class AuthController : ControllerBase
         return Ok(await BuildAuthResponse(user));
     }
 
+    /// <summary>Builds the login response, including a freshly signed token carrying the user's roles.</summary>
     private async Task<AuthResponse> BuildAuthResponse(User user)
     {
         List<string> roles = await _context.UserRoleMappings

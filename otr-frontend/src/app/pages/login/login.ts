@@ -7,6 +7,7 @@ import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardFieldImports } from '@/shared/components/field';
 import { ZardInputComponent } from '@/shared/components/input';
 
+/** Login page. */
 @Component({
   selector: 'app-login',
   imports: [FormsModule, RouterLink, ZardButtonComponent, ZardFieldImports, ZardInputComponent],
@@ -16,11 +17,12 @@ export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected email = '';
-  protected password = '';
-  protected readonly loading = signal(false);
+  protected email: string = '';
+  protected password: string = '';
+  protected readonly loading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
 
+  /** Submits the form and navigates on success. */
   async onSubmit(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);

@@ -13,6 +13,7 @@ import { ZardTableImports } from '@/shared/components/table';
 import { CreateUserDialog } from './create-user-dialog/create-user-dialog';
 import { InviteUserDialog } from './invite-user-dialog/invite-user-dialog';
 
+/** Lists users, lets Superadmins invite or create users and manage their roles and teams. */
 @Component({
   selector: 'app-users',
   imports: [DatePipe, FormsModule, ZardBadgeComponent, ZardButtonComponent, ZardInputComponent, ZardSelectImports, ZardTableImports],
@@ -28,9 +29,9 @@ export class Users implements OnInit {
   protected readonly authService = inject(AuthService);
 
   protected readonly users = signal<User[]>([]);
-  protected readonly loading = signal(true);
+  protected readonly loading = signal<boolean>(true);
   protected readonly error = signal<string | null>(null);
-  protected readonly searchTerm = signal('');
+  protected readonly searchTerm = signal<string>('');
 
   protected readonly filteredUsers = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -48,12 +49,12 @@ export class Users implements OnInit {
   protected readonly allTeams = signal<Team[]>([]);
 
   protected readonly expandedUserId = signal<number | null>(null);
-  protected readonly panelLoading = signal(false);
+  protected readonly panelLoading = signal<boolean>(false);
   protected readonly userRoles = signal<Role[]>([]);
   protected readonly userTeams = signal<Team[]>([]);
 
-  protected selectedRoleId = '';
-  protected selectedTeamId = '';
+  protected selectedRoleId: string = '';
+  protected selectedTeamId: string = '';
 
   protected readonly availableRoles = computed(() =>
     this.allRoles().filter(role => !this.userRoles().some(assigned => assigned.id === role.id)),
@@ -62,6 +63,7 @@ export class Users implements OnInit {
     this.allTeams().filter(team => !this.userTeams().some(assigned => assigned.id === team.id)),
   );
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     this.load();
     this.roleService.apiRoleGet$Json().then(roles => this.allRoles.set(roles));
@@ -72,6 +74,7 @@ export class Users implements OnInit {
     }
   }
 
+  /** Opens the dialog for inviting a user and reloads the invitations on success. */
   protected openInviteDialog(): void {
     this.dialogService.create({
       zTitle: 'Nutzer einladen',
@@ -82,6 +85,7 @@ export class Users implements OnInit {
     });
   }
 
+  /** Opens the dialog for creating a user and reloads the list on success. */
   protected openCreateUserDialog(): void {
     this.dialogService.create({
       zTitle: 'Nutzer anlegen',
@@ -92,12 +96,14 @@ export class Users implements OnInit {
     });
   }
 
+  /** Flips the active flag and reloads the list. */
   protected async toggleActive(user: User): Promise<void> {
     const updated: User = { ...user, isActive: !user.isActive };
     await this.userService.apiUserIdPut$Json({ id: user.id!, body: updated });
     this.load();
   }
 
+  /** Expands or collapses the detail panel of a row and loads its data. */
   protected async toggleExpand(user: User): Promise<void> {
     const id = Number(user.id);
 
@@ -110,6 +116,7 @@ export class Users implements OnInit {
     await this.loadPanel(id);
   }
 
+  /** Assigns the selected role to the user. */
   protected async addRole(userId: number): Promise<void> {
     if (!this.selectedRoleId) {
       return;
@@ -120,11 +127,13 @@ export class Users implements OnInit {
     await this.loadPanel(userId);
   }
 
+  /** Removes a role from the user. */
   protected async removeRole(userId: number, role: Role): Promise<void> {
     await this.userService.apiUserIdRolesRoleIdDelete({ id: userId, roleId: role.id! });
     await this.loadPanel(userId);
   }
 
+  /** Adds the user to the selected team. */
   protected async addTeam(userId: number): Promise<void> {
     if (!this.selectedTeamId) {
       return;
@@ -135,11 +144,13 @@ export class Users implements OnInit {
     await this.loadPanel(userId);
   }
 
+  /** Removes the user from a team. */
   protected async removeTeam(userId: number, team: Team): Promise<void> {
     await this.userService.apiUserIdTeamsTeamIdDelete({ id: userId, teamId: team.id! });
     await this.loadPanel(userId);
   }
 
+  /** Fetches the roles and teams of one user for the expanded panel. */
   private async loadPanel(userId: number): Promise<void> {
     this.panelLoading.set(true);
 
@@ -154,11 +165,13 @@ export class Users implements OnInit {
     }
   }
 
+  /** Hides an invitation from the list of open invitations. */
   protected async archiveInvitation(invitation: UserInvitation): Promise<void> {
     await this.userInvitationService.apiUserInvitationIdArchivePost({ id: invitation.id! });
     await this.loadInvitations();
   }
 
+  /** Fetches the open invitations. */
   private async loadInvitations(): Promise<void> {
     try {
       this.invitations.set(await this.userInvitationService.apiUserInvitationGet$Json());
@@ -167,6 +180,7 @@ export class Users implements OnInit {
     }
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private load(): void {
     this.loading.set(true);
     this.userService.apiUserGet$Json().then(

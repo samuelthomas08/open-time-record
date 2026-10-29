@@ -8,6 +8,7 @@ import { ZardCheckboxComponent } from '@/shared/components/checkbox';
 import { ZardFieldImports } from '@/shared/components/field';
 import { ZardInputComponent } from '@/shared/components/input';
 
+/** Superadmin form for configuring the outgoing mail server. */
 @Component({
   selector: 'app-smtp-settings',
   imports: [FormsModule, ZardButtonComponent, ZardCheckboxComponent, ZardFieldImports, ZardInputComponent],
@@ -17,20 +18,21 @@ export class SmtpSettingsPage implements OnInit {
   private readonly smtpSettingsService = inject(SmtpSettingsService);
 
   protected readonly authService = inject(AuthService);
-  protected readonly loading = signal(true);
-  protected readonly saving = signal(false);
+  protected readonly loading = signal<boolean>(true);
+  protected readonly saving = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
   protected readonly success = signal<string | null>(null);
-  protected readonly isConfigured = signal(false);
+  protected readonly isConfigured = signal<boolean>(false);
 
-  protected host = '';
-  protected port = 587;
-  protected username = '';
-  protected password = '';
-  protected fromAddress = '';
-  protected fromName = '';
-  protected useSsl = true;
+  protected host: string = '';
+  protected port: number = 587;
+  protected username: string = '';
+  protected password: string = '';
+  protected fromAddress: string = '';
+  protected fromName: string = '';
+  protected useSsl: boolean = true;
 
+  /** Loads the data the page needs when it is created. */
   ngOnInit(): void {
     if (!this.authService.isSuperadmin()) {
       this.loading.set(false);
@@ -40,6 +42,7 @@ export class SmtpSettingsPage implements OnInit {
     this.load();
   }
 
+  /** Saves the form. */
   protected async save(): Promise<void> {
     this.saving.set(true);
     this.error.set(null);
@@ -67,6 +70,7 @@ export class SmtpSettingsPage implements OnInit {
     }
   }
 
+  /** Fetches the data shown on this page and updates loading/error state. */
   private async load(): Promise<void> {
     this.loading.set(true);
 

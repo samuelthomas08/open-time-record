@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using otr_backend.Data;
@@ -5,6 +6,8 @@ using otr_backend.Models;
 
 namespace otr_backend.Controllers;
 
+/// <summary>Manages tags for time entries.</summary>
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class TagController : ControllerBase
@@ -13,15 +16,17 @@ public class TagController : ControllerBase
 
     public TagController(OtrDbContext context)
     {
-        this._context = context;
+        _context = context;
     }
 
+    /// <summary>Returns all tags.</summary>
     [HttpGet]
     public async Task<ActionResult<List<Tag>>> GetTags()
     {
         return Ok(await _context.Tags.ToListAsync());
     }
 
+    /// <summary>Returns a single tag or 404.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<Tag>> GetTagById(uint id)
     {
@@ -34,6 +39,7 @@ public class TagController : ControllerBase
         return Ok(tag);
     }
 
+    /// <summary>Creates a new tag.</summary>
     [HttpPost]
     public async Task<ActionResult<Tag>> AddTag(Tag tag)
     {

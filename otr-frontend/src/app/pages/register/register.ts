@@ -7,6 +7,7 @@ import { ZardButtonComponent } from '@/shared/components/button';
 import { ZardFieldImports } from '@/shared/components/field';
 import { ZardInputComponent } from '@/shared/components/input';
 
+/** Registration page; also used to redeem invitation codes via query parameters. */
 @Component({
   selector: 'app-register',
   imports: [FormsModule, RouterLink, ZardButtonComponent, ZardFieldImports, ZardInputComponent],
@@ -17,14 +18,15 @@ export class Register {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected firstName = '';
-  protected lastName = '';
+  protected firstName: string = '';
+  protected lastName: string = '';
   protected email = this.route.snapshot.queryParamMap.get('email') ?? '';
-  protected password = '';
+  protected password: string = '';
   protected invitationCode = this.route.snapshot.queryParamMap.get('code') ?? '';
-  protected readonly loading = signal(false);
+  protected readonly loading = signal<boolean>(false);
   protected readonly error = signal<string | null>(null);
 
+  /** Submits the form and navigates on success. */
   async onSubmit(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);

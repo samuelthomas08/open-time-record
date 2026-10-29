@@ -10,6 +10,7 @@ import { TimerService } from '@/services/timer.service';
 import { Logo } from '@/components/logo/logo';
 import { UserMenu } from '@/components/user-menu/user-menu';
 
+/** Top bar with navigation, the timer toggle and the user menu. */
 @Component({
   selector: 'app-header',
   imports: [NgIcon, ZardButtonComponent, ZardNavigationMenuImports, RouterLink, RouterLinkActive, Logo, UserMenu],
@@ -29,6 +30,7 @@ export class Header {
     });
   }
 
+  /** Starts the timer, or stops it if one is running. */
   protected async toggleTimer(): Promise<void> {
     if (this.timerService.isRunning()) {
       await this.timerService.stop();

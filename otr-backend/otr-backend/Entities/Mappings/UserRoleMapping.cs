@@ -1,5 +1,6 @@
-﻿namespace otr_backend.Models;
+namespace otr_backend.Models;
 
+/// <summary>Join entity: a role assigned to a user.</summary>
 public class UserRoleMapping
 {
     public uint UserId { get; set; }

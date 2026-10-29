@@ -16,6 +16,7 @@ export interface ManageWorkScheduleDialogData {
   onSuccess: () => void;
 }
 
+/** Dialog listing the schedule periods of one user, with edit and delete. */
 @Component({
   selector: 'app-manage-work-schedule-dialog',
   imports: [DatePipe, ZardButtonComponent, ZardTableImports],
@@ -31,6 +32,7 @@ export class ManageWorkScheduleDialog {
   protected readonly error = signal<string | null>(null);
   protected readonly weeklyTotal = weeklyTotal;
 
+  /** Opens the dialog for creating or editing a schedule period. */
   protected openPeriodDialog(existing?: WorkSchedule): void {
     this.dialogService.create({
       zTitle: existing ? 'Zeitraum bearbeiten' : 'Neuer Zeitraum',
@@ -41,6 +43,7 @@ export class ManageWorkScheduleDialog {
     });
   }
 
+  /** Deletes a schedule period and reloads the list. */
   protected async remove(schedule: WorkSchedule): Promise<void> {
     try {
       await this.workScheduleService.apiWorkScheduleIdDelete({ id: Number(schedule.id) });
@@ -50,10 +53,12 @@ export class ManageWorkScheduleDialog {
     }
   }
 
+  /** Closes the dialog. */
   protected close(): void {
     this.dialogRef.close();
   }
 
+  /** Reloads the data after a change. */
   private async reload(): Promise<void> {
     // /managed never includes the caller's own schedules, so self-management has to reload via /mine.
     const all = this.data.own
