@@ -87,7 +87,7 @@ Register the first account in the browser; it automatically becomes Superadmin.
 | `npm start` | `otr-frontend` | Dev server with live reload |
 | `npm run build` | `otr-frontend` | Production build (browser + SSR) |
 | `npm test` | `otr-frontend` | Unit tests |
-| `npm run generate:api-client` | `otr-frontend` | Regenerate `src/app/api-client` |
+| `npm run generate:api-client` | `otr-frontend` | Regenerate `src/app/api-client` (runs automatically before `start`, `build`, `test` and `watch`) |
 | `docker compose up -d --build` | `deploy` | Build and run the whole stack |
 
 ## Working with the database
@@ -106,14 +106,13 @@ To start over with an empty database, remove the Postgres container (or its volu
 
 ## Changing the API
 
-The Angular API client is generated, never edited by hand.
+The Angular API client is generated at build time and is not committed (`src/app/api-client` is git-ignored). The committed contract is `otr-frontend/openapi/openapi.json`.
 
 1. Change controllers, DTOs or entities in the backend.
 2. `dotnet build` – this writes `otr-frontend/openapi/openapi.json`.
-3. `npm run generate:api-client` in `otr-frontend`.
-4. Commit both the OpenAPI file and the regenerated client.
+3. Commit the changed `openapi.json`. The client is regenerated automatically the next time you run `npm start`, `npm run build` or `npm test`.
 
-On `master` the GitHub workflow *Generate API Client* does steps 2–4 automatically for backend changes.
+On `master` the GitHub workflow *Update OpenAPI Contract* does steps 2–3 automatically for backend changes.
 
 ## Code conventions
 

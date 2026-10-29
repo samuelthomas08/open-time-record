@@ -154,7 +154,7 @@ flowchart TB
         Zard["shared/<br/>Zard UI component library"]
     end
 
-    ApiClient["api-client/<br/>generated from OpenAPI"]
+    ApiClient["api-client/<br/>generated at build time"]
 
     Routes --> Pages
     Pages --> Components
@@ -181,16 +181,16 @@ Session state is kept in signals. `AuthService` mirrors the token and user in `l
 
 ## API client generation
 
-The TypeScript client is generated from the backend's OpenAPI document, so request and response types always match the server.
+The TypeScript client is **not committed**. It is generated from the backend's OpenAPI document, which is the only checked-in contract, so request and response types always match the server.
 
 ```mermaid
 flowchart LR
-    A["dotnet build<br/>(Microsoft.Extensions.ApiDescription.Server)"] --> B["otr-frontend/openapi/openapi.json"]
-    B --> C["npm run generate:api-client<br/>(ng-openapi-gen)"]
-    C --> D["otr-frontend/src/app/api-client/"]
+    A["dotnet build<br/>(Microsoft.Extensions.ApiDescription.Server)"] --> B["otr-frontend/openapi/openapi.json<br/>(committed)"]
+    B --> C["npm start / build / test<br/>runs generate:api-client (ng-openapi-gen)"]
+    C --> D["otr-frontend/src/app/api-client/<br/>(git-ignored)"]
 ```
 
-The workflow `.github/workflows/generate-api-client.yml` does this automatically whenever backend code is pushed to `master` and commits the result.
+The workflow `.github/workflows/update-openapi-contract.yml` rebuilds the backend whenever backend code is pushed to `master` and commits the updated `openapi.json`. The Docker image build generates the client the same way, because `npm run build` triggers it.
 
 ## Design decisions
 

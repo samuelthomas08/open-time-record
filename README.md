@@ -196,8 +196,8 @@ open-time-record/
 ├── otr-backend/        ASP.NET Core solution
 │   └── otr-backend/    Controllers, Services, Entities, Dtos, Migrations
 ├── otr-frontend/       Angular application
-│   ├── openapi/        OpenAPI document produced by the backend build
-│   └── src/app/        pages, components, services, generated api-client
+│   ├── openapi/        OpenAPI contract produced by the backend build (committed)
+│   └── src/app/        pages, components, services (api-client is generated, not committed)
 └── .github/workflows/  API client generation and release pipelines
 ```
 
